@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vokabel-Trainer: Englisch</title>
+    <title>Vokabel-Trainer: Einheiten-Auswahl</title>
     <style>
         /* Modernes Blaues Styling */
         :root {
@@ -47,7 +47,53 @@
             color: var(--color-secondary);
             margin-bottom: 20px;
         }
+        
+        /* STARTBILDSCHIRM STYLING */
+        #menu-screen {
+            padding: 30px;
+            max-width: 550px;
+            width: 95%;
+            margin-top: 10vh;
+            /* Hintergrund für das Menü passend zum Spiel */
+            background: white; 
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
 
+        .menu-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--color-secondary);
+            margin-bottom: 40px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .menu-button {
+            width: 100%;
+            background-color: var(--color-background);
+            color: var(--color-secondary);
+            border: 2px solid var(--color-primary);
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-button:hover {
+            background-color: var(--color-primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
         /* Fortschrittsanzeige */
         #progressText {
             font-weight: 500;
@@ -139,7 +185,7 @@
         .feedback.correct { color: var(--color-success); }
         .feedback.incorrect { color: var(--color-error); }
 
-        /* Buttons */
+        /* Buttons (Spiel) */
         .button {
             background-color: var(--color-primary);
             color: white;
@@ -174,7 +220,7 @@
         
         /* Abschlussmeldung */
         .completion-message {
-            background: linear-gradient(45deg, #ffb300, #ff8f00); /* Gelb-Orange Akzent */
+            background: linear-gradient(45deg, #ffb300, #ff8f00); 
             color: white;
             padding: 25px;
             border-radius: 15px;
@@ -186,29 +232,32 @@
         .completion-message.show {
             display: block;
         }
-        
-        .completion-message h3 {
-            margin-top: 0;
-            font-size: 24px;
-        }
     </style>
 </head>
 <body>
-    <main class="game-container">
-        <h1 class="game-title">Englisch-Vokabeltrainer</h1>
+    
+    <!-- STARTBILDSCHIRM (Wird zuerst angezeigt) -->
+    <section id="menu-screen">
+        <h1 class="menu-title">Wähle eine Lerneinheit</h1>
+        <div class="menu-grid" id="menuGrid">
+            <!-- Buttons werden hier von JavaScript eingefügt -->
+        </div>
+    </section>
+
+    <!-- SPIEL-BEREICH (Ist standardmäßig versteckt) -->
+    <main class="game-container" id="gameContainer" style="display: none;">
+        <header>
+            <h1 class="game-title" id="gameTitle"></h1>
+        </header>
 
         <section class="card-container">
             <div class="flashcard" id="flashcard">
-                <div class="card-face card-front" id="cardFront">
-                    Klicke zum Starten
-                </div>
-                <div class="card-face card-back" id="cardBack">
-                    Bereit?
-                </div>
+                <div class="card-face card-front" id="cardFront"></div>
+                <div class="card-face card-back" id="cardBack"></div>
             </div>
         </section>
 
-        <p id="progressText">Fortschritt: 0 / 21 Karten</p>
+        <p id="progressText"></p>
 
         <section class="input-section">
             <input type="text" class="answer-input" id="answerInput" placeholder="Englische Antwort eingeben..." disabled>
@@ -222,41 +271,74 @@
             <h3>Glückwunsch! 🎉</h3>
             <p>Du hast alle Karten erfolgreich durchgearbeitet.</p>
             <button class="button" onclick="restartGame()">Nochmal spielen</button>
+            <button class="button" onclick="backToMenu()">Zurück zum Menü</button>
         </div>
     </main>
 
     <script>
-        // LERNKARTEN-DATEN
-        const flashcards = [
-            // Reguläre Karten (Deutsch -> Englisch)
-            { id: 'agree', front: 'Etwas vereinbaren, absprechen, sich einigen auf etwas', back: '(to) agree (on) sth.' },
-            { id: 'people_of_colour', front: 'Nicht-weiße Menschen', back: 'people of colour' },
-            { id: 'phenomenon', front: 'Phänomen, Erscheinung (Betonung auf der 2. Silbe: phenomenon)', back: 'phenomenon' },
-            { id: 'fix', front: 'Etwas in Ordnung bringen; reparieren. (z.B. A problem with your bike? I can...)', back: '(to) fix sth.' },
-            { id: 'wrong', front: 'Unrecht (z.B. Teach your children the difference between right and...)', back: 'wrong' },
-            { id: 'reform', front: 'Reform', back: 'reform' },
-            { id: 'youth', front: 'Jugend; Jugendlicher', back: 'youth' },
-            { id: 'growth', front: 'Wachstum (z.B. Too much water will stop the plant’s...)', back: 'growth' },
-            { id: 'educational', front: 'Erziehungs-, Bildungs- (relating to education)', back: 'educational' },
-            { id: 'corruption', front: 'Korruption, Bestechlichkeit', back: 'corruption' },
-            { id: 'qualification', front: '(Schul-)Abschluss, Qualifikation', back: 'qualification' },
-            { id: 'diploma', front: 'Diplom, Abschlusszeugnis (a document which shows that you have completed a part of your education)', back: 'diploma' },
-            { id: 'struggle', front: 'Kämpfen, sich abmühen (z.B. I am... to understand my French homework.)', back: '(to) struggle' },
-            { id: 'nanny', front: 'Kindermädchen (z.B. It’s my job to look after young children in their home.)', back: 'nanny' },
-            { id: 'party', front: 'Partei; Gruppe (z.B. I’m a member of the Green...)', back: 'party' },
-            { id: 'fail', front: 'Scheitern; (es) nicht schaffen', back: '(to) fail' },
-            { id: 'racism', front: 'Rassismus (Betonung auf der 1. Silbe)', back: 'racism' },
-            { id: 'necessarily', front: 'Zwangsläufig; (nicht) unbedingt', back: '(not) necessarily' },
-            
-            // Synonym- und Antonym-Karten
-            { id: 'entrepreneur', front: 'Unternehmer/in ▶▶', back: 'businessman/businesswoman' },
-            { id: 'wrong_ant', front: 'wrong ◀▶', back: 'right' },
-            { id: 'right_ant', front: 'right ◀▶', back: 'wrong' }
-        ];
+        // #######################################################
+        // 1. LERNKARTEN-DATEN
+        // Fügen Sie Ihre weiteren Einheiten hier nach dem gleichen Muster ein!
+        // #######################################################
+        const allCardSets = {
+            "ga10u1": {
+                title: "GA10U1: Vokabeln (Aktuell)",
+                cards: [
+                    { id: 'agree', front: 'Etwas vereinbaren, absprechen, sich einigen auf etwas', back: '(to) agree (on) sth.' },
+                    { id: 'people_of_colour', front: 'Nicht-weiße Menschen', back: 'people of colour' },
+                    { id: 'phenomenon', front: 'Phänomen, Erscheinung (Betonung auf der 2. Silbe: phenomenon)', back: 'phenomenon' },
+                    { id: 'fix', front: 'Etwas in Ordnung bringen; reparieren. (z.B. A problem with your bike? I can...)', back: '(to) fix sth.' },
+                    { id: 'wrong', front: 'Unrecht (z.B. Teach your children the difference between right and...)', back: 'wrong' },
+                    { id: 'reform', front: 'Reform', back: 'reform' },
+                    { id: 'youth', front: 'Jugend; Jugendlicher', back: 'youth' },
+                    { id: 'growth', front: 'Wachstum (z.B. Too much water will stop the plant’s...)', back: 'growth' },
+                    { id: 'educational', front: 'Erziehungs-, Bildungs- (relating to education)', back: 'educational' },
+                    { id: 'corruption', front: 'Korruption, Bestechlichkeit', back: 'corruption' },
+                    { id: 'entrepreneur', front: 'Unternehmer/in ▶▶', back: 'businessman/businesswoman' },
+                    { id: 'qualification', front: '(Schul-)Abschluss, Qualifikation', back: 'qualification' },
+                    { id: 'diploma', front: 'Diplom, Abschlusszeugnis', back: 'diploma' },
+                    { id: 'struggle', front: 'Kämpfen, sich abmühen (z.B. I am... to understand my French homework.)', back: '(to) struggle' },
+                    { id: 'nanny', front: 'Kindermädchen (z.B. It’s my job to look after young children in their home.)', back: 'nanny' },
+                    { id: 'party', front: 'Partei; Gruppe (z.B. I’m a member of the Green...)', back: 'party' },
+                    { id: 'fail', front: 'Scheitern; (es) nicht schaffen', back: '(to) fail' },
+                    { id: 'racism', front: 'Rassismus (Betonung auf der 1. Silbe)', back: 'racism' },
+                    { id: 'necessarily', front: 'Zwangsläufig; (nicht) unbedingt', back: '(not) necessarily' },
+                    { id: 'wrong_ant', front: 'wrong ◀▶', back: 'right' },
+                    { id: 'right_ant', front: 'right ◀▶', back: 'wrong' }
+                ]
+            },
+            // Beispiel für eine weitere Einheit. Hier können Sie Ihre GA10U2 Vokabeln eintragen!
+            "ga10u2": {
+                title: "GA10U2: Neue Wörter (Beispiel)",
+                cards: [
+                    { id: 'discovery', front: 'Entdeckung', back: 'discovery' },
+                    { id: 'challenge', front: 'Herausforderung', back: 'challenge' },
+                    { id: 'solution', front: 'Lösung ▶▶', back: 'answer' }
+                ]
+            },
+            // HIER KÖNNEN SIE WEITERE SETS HINZUFÜGEN
+            /*
+            "ga10u3": {
+                title: "GA10U3: Ihr nächstes Set",
+                cards: [
+                    // ... Ihre Vokabeln
+                ]
+            }
+            */
+        };
 
-        // SPIELZUSTAND & DOM-ELEMENTE (Wie im vorherigen Skript)
+        // #######################################################
+        // 2. SPIELZUSTAND & DOM-ELEMENTE
+        // #######################################################
         let currentCardIndex = 0;
         let answered = false;
+        let flashcards = []; // Wird erst beim Start eines Sets geladen
+        let totalCards = 0;
+
+        const menuScreen = document.getElementById('menu-screen');
+        const gameContainer = document.getElementById('gameContainer');
+        const menuGrid = document.getElementById('menuGrid');
+        
         const flashcardElement = document.getElementById('flashcard');
         const cardFrontElement = document.getElementById('cardFront');
         const cardBackElement = document.getElementById('cardBack');
@@ -266,10 +348,61 @@
         const feedbackElement = document.getElementById('feedback');
         const completionMessage = document.getElementById('completionMessage');
         const progressTextElement = document.getElementById('progressText');
-        const totalCards = flashcards.length;
+        const gameTitle = document.getElementById('gameTitle');
 
+        // #######################################################
+        // 3. MENU FUNKTIONEN
+        // #######################################################
+        
+        /** Erzeugt die Auswahl-Buttons aus den Daten */
+        function renderMenu() {
+            menuGrid.innerHTML = ''; // Vorherige Buttons entfernen
+            
+            Object.keys(allCardSets).forEach(key => {
+                const set = allCardSets[key];
+                const button = document.createElement('button');
+                button.classList.add('menu-button');
+                button.textContent = set.title;
+                // Beim Klick wird das Spiel mit diesem Set geladen
+                button.onclick = () => loadGame(key);
+                menuGrid.appendChild(button);
+            });
+            
+            // Zeigt den Menü-Bildschirm und versteckt das Spiel
+            menuScreen.style.display = 'block';
+            gameContainer.style.display = 'none';
+        }
+        
+        /** Lädt das ausgewählte Spiel-Set */
+        function loadGame(setKey) {
+            const set = allCardSets[setKey];
+            
+            // 1. Daten und Titel setzen
+            flashcards = set.cards;
+            totalCards = flashcards.length;
+            gameTitle.textContent = set.title;
+            
+            // 2. Ansicht wechseln
+            menuScreen.style.display = 'none';
+            gameContainer.style.display = 'block';
+            
+            // 3. Spiel starten
+            currentCardIndex = 0;
+            shuffleArray(flashcards); // Beim Start mischen
+            startGame();
+        }
 
-        // SPIEL-FUNKTIONEN
+        /** Geht vom Spiel zurück zur Menü-Auswahl */
+        function backToMenu() {
+            document.querySelector('.input-section').style.display = 'block';
+            document.querySelector('.card-container').style.display = 'block';
+            completionMessage.classList.remove('show');
+            renderMenu();
+        }
+
+        // #######################################################
+        // 4. SPIEL FUNKTIONEN (Kern-Logik)
+        // #######################################################
 
         function showCard() {
             if (currentCardIndex >= totalCards) {
@@ -279,18 +412,15 @@
 
             const card = flashcards[currentCardIndex];
             
-            // UI zurücksetzen
             flashcardElement.classList.remove('flipped');
             answerInputElement.value = '';
             answerInputElement.className = 'answer-input';
             feedbackElement.textContent = '';
             feedbackElement.className = 'feedback';
-            
-            // Kartentexte setzen
+
             cardFrontElement.textContent = card.front;
             cardBackElement.textContent = card.back;
             
-            // Buttons und Zustand setzen
             checkButton.style.display = 'inline-block';
             nextButton.style.display = 'none';
             checkButton.disabled = false;
@@ -301,16 +431,15 @@
         }
 
         function updateProgress() {
-            progressTextElement.textContent = `Fortschritt: ${currentCardIndex + 1} / ${totalCards} Karten`;
+            progressTextElement.textContent = `Karte: ${currentCardIndex + 1} / ${totalCards}`;
         }
 
         function flipCard() {
             flashcardElement.classList.toggle('flipped');
         }
 
-        /** Entfernt unnötige Zeichen und normiert die Antwort */
         function normalizeAnswer(text) {
-            // Entfernt Klammern, "(to)", und trimmt Leerzeichen
+            // Bereinigt die Antwort für den Vergleich
             return text.toLowerCase()
                        .replace(/\(to\)/g, '')
                        .replace(/[\(\)]/g, '')
@@ -325,9 +454,8 @@
             const card = flashcards[currentCardIndex];
             const rawUserAnswer = answerInputElement.value.trim();
             
-            // Normierung der Antwort und der korrekten Lösung
             const userAnswer = normalizeAnswer(rawUserAnswer);
-            // Korrekte Lösungen, aufgespalten bei Schrägstrich (z.B. businessman/businesswoman)
+            // Unterstützt Antworten wie 'businessman/businesswoman'
             const correctAnswers = card.back.split('/').map(ans => normalizeAnswer(ans));
             
             answered = true;
@@ -345,7 +473,6 @@
                 feedbackElement.classList.add('incorrect');
             }
 
-            // Karte umdrehen und nächsten Schritt anzeigen
             setTimeout(flipCard, 500);
             nextButton.style.display = 'inline-block';
             answerInputElement.disabled = true;
@@ -365,7 +492,6 @@
 
         function restartGame() {
             currentCardIndex = 0;
-            // Die Karten neu mischen, um den Lerneffekt zu erhöhen
             shuffleArray(flashcards); 
             document.querySelector('.input-section').style.display = 'block';
             document.querySelector('.card-container').style.display = 'block';
@@ -374,7 +500,6 @@
             startGame();
         }
         
-        /** Fisher-Yates-Shuffle-Algorithmus zum Mischen der Karten */
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -384,45 +509,19 @@
         
         function startGame() {
             showCard();
-            answerInputElement.disabled = false;
-            checkButton.disabled = false;
             flashcardElement.removeEventListener('click', flipCard);
             flashcardElement.addEventListener('click', flipCard);
         }
 
 
-        // EVENT-LISTENERS
+        // #######################################################
+        // 5. INITIALISIERUNG
+        // #######################################################
         
-        // Startet das Spiel oder dreht die Karte, wenn geklickt wird
-        flashcardElement.addEventListener('click', () => {
-            if (currentCardIndex === 0 && !answered) {
-                // Nur beim ersten Klick wird das Spiel gestartet
-                startGame();
-            } else if (currentCardIndex > 0 || answered) {
-                // Bei bereits laufendem Spiel wird nur geflippt
-                flipCard();
-            }
-        });
-        
-        // Eingabe-Listener für Enter-Taste
-        answerInputElement.addEventListener('keypress', function(e) {
-            // Nur prüfen, wenn die Eingabe nicht deaktiviert ist
-            if (e.key === 'Enter' && !checkButton.disabled && !answerInputElement.disabled) {
-                checkAnswer();
-            }
-        });
-        
-        // Initialisierung
+        // Initialisiert die App mit dem Menü
         window.onload = () => {
-             // Initial die Startkarte anzeigen
-             flashcardElement.classList.remove('flipped');
-             cardFrontElement.textContent = 'Klicke zum Starten: Vokabeltrainer';
-             cardBackElement.textContent = `${totalCards} Karten warten auf dich!`;
-             progressTextElement.textContent = `Fortschritt: 0 / ${totalCards} Karten`;
-             answerInputElement.disabled = true;
-             checkButton.disabled = true;
+             renderMenu();
         }
-
     </script>
 </body>
 </html>
