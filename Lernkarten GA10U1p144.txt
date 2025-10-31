@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vokabel-Trainer: Englisch</title>
+    <style>
+        /* Modernes Blaues Styling */
+        :root {
+            --color-primary: #1e88e5; /* Helles Blau */
+            --color-secondary: #0d47a1; /* Dunkles Blau */
+            --color-background: #e3f2fd; /* Sehr helles Blau */
+            --color-text: #263238; /* Dunkelgrau */
+            --color-success: #43a047; /* Grün für Korrekt */
+            --color-error: #e53935; /* Rot für Fehler */
+            --color-card-front: #42a5f5; /* Kartenfarbe Vorderseite */
+            --color-card-back: #26c6da; /* Kartenfarbe Rückseite */
+            --shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--color-background) 0%, var(--color-primary) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            max-width: 550px;
+            width: 95%;
+            text-align: center;
+            margin-top: 5vh;
+        }
+
+        .game-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-secondary);
+            margin-bottom: 20px;
+        }
+
+        /* Fortschrittsanzeige */
+        #progressText {
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: 15px;
+        }
+
+        /* 3D-Karten-Container */
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 220px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            cursor: pointer;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+            padding: 25px;
+            box-sizing: border-box;
+            color: white;
+            line-height: 1.4;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* Kartenfarben */
+        .card-front {
+            background: linear-gradient(135deg, var(--color-card-front), #1565c0);
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, var(--color-card-back), #00838f);
+            transform: rotateY(180deg);
+        }
+        
+        /* Eingabe und Feedback */
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .answer-input.correct {
+            border-color: var(--color-success);
+            background-color: #f1f8e9;
+        }
+
+        .answer-input.incorrect {
+            border-color: var(--color-error);
+            background-color: #ffebee;
+        }
+
+        .feedback {
+            margin: 15px 0;
+            font-weight: 600;
+            min-height: 20px;
+        }
+
+        .feedback.correct { color: var(--color-success); }
+        .feedback.incorrect { color: var(--color-error); }
+
+        /* Buttons */
+        .button {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .button:hover:not(:disabled) {
+            background-color: var(--color-secondary);
+            transform: translateY(-2px);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .button.next-button {
+            background-color: var(--color-success);
+        }
+        .button.next-button:hover:not(:disabled) {
+            background-color: #388e3c;
+        }
+        
+        /* Abschlussmeldung */
+        .completion-message {
+            background: linear-gradient(45deg, #ffb300, #ff8f00); /* Gelb-Orange Akzent */
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+        
+        .completion-message.show {
+            display: block;
+        }
+        
+        .completion-message h3 {
+            margin-top: 0;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <main class="game-container">
+        <h1 class="game-title">Englisch-Vokabeltrainer</h1>
+
+        <section class="card-container">
+            <div class="flashcard" id="flashcard">
+                <div class="card-face card-front" id="cardFront">
+                    Klicke zum Starten
+                </div>
+                <div class="card-face card-back" id="cardBack">
+                    Bereit?
+                </div>
+            </div>
+        </section>
+
+        <p id="progressText">Fortschritt: 0 / 21 Karten</p>
+
+        <section class="input-section">
+            <input type="text" class="answer-input" id="answerInput" placeholder="Englische Antwort eingeben..." disabled>
+            <div class="feedback" id="feedback"></div>
+            
+            <button class="button" id="checkButton" onclick="checkAnswer()" disabled>Antwort prüfen</button>
+            <button class="button next-button" id="nextButton" onclick="nextCard()" style="display: none;">Nächste Karte</button>
+        </section>
+
+        <div class="completion-message" id="completionMessage">
+            <h3>Glückwunsch! 🎉</h3>
+            <p>Du hast alle Karten erfolgreich durchgearbeitet.</p>
+            <button class="button" onclick="restartGame()">Nochmal spielen</button>
+        </div>
+    </main>
+
+    <script>
+        // LERNKARTEN-DATEN
+        const flashcards = [
+            // Reguläre Karten (Deutsch -> Englisch)
+            { id: 'agree', front: 'Etwas vereinbaren, absprechen, sich einigen auf etwas', back: '(to) agree (on) sth.' },
+            { id: 'people_of_colour', front: 'Nicht-weiße Menschen', back: 'people of colour' },
+            { id: 'phenomenon', front: 'Phänomen, Erscheinung (Betonung auf der 2. Silbe: phenomenon)', back: 'phenomenon' },
+            { id: 'fix', front: 'Etwas in Ordnung bringen; reparieren. (z.B. A problem with your bike? I can...)', back: '(to) fix sth.' },
+            { id: 'wrong', front: 'Unrecht (z.B. Teach your children the difference between right and...)', back: 'wrong' },
+            { id: 'reform', front: 'Reform', back: 'reform' },
+            { id: 'youth', front: 'Jugend; Jugendlicher', back: 'youth' },
+            { id: 'growth', front: 'Wachstum (z.B. Too much water will stop the plant’s...)', back: 'growth' },
+            { id: 'educational', front: 'Erziehungs-, Bildungs- (relating to education)', back: 'educational' },
+            { id: 'corruption', front: 'Korruption, Bestechlichkeit', back: 'corruption' },
+            { id: 'qualification', front: '(Schul-)Abschluss, Qualifikation', back: 'qualification' },
+            { id: 'diploma', front: 'Diplom, Abschlusszeugnis (a document which shows that you have completed a part of your education)', back: 'diploma' },
+            { id: 'struggle', front: 'Kämpfen, sich abmühen (z.B. I am... to understand my French homework.)', back: '(to) struggle' },
+            { id: 'nanny', front: 'Kindermädchen (z.B. It’s my job to look after young children in their home.)', back: 'nanny' },
+            { id: 'party', front: 'Partei; Gruppe (z.B. I’m a member of the Green...)', back: 'party' },
+            { id: 'fail', front: 'Scheitern; (es) nicht schaffen', back: '(to) fail' },
+            { id: 'racism', front: 'Rassismus (Betonung auf der 1. Silbe)', back: 'racism' },
+            { id: 'necessarily', front: 'Zwangsläufig; (nicht) unbedingt', back: '(not) necessarily' },
+            
+            // Synonym- und Antonym-Karten
+            { id: 'entrepreneur', front: 'Unternehmer/in ▶▶', back: 'businessman/businesswoman' },
+            { id: 'wrong_ant', front: 'wrong ◀▶', back: 'right' },
+            { id: 'right_ant', front: 'right ◀▶', back: 'wrong' }
+        ];
+
+        // SPIELZUSTAND & DOM-ELEMENTE (Wie im vorherigen Skript)
+        let currentCardIndex = 0;
+        let answered = false;
+        const flashcardElement = document.getElementById('flashcard');
+        const cardFrontElement = document.getElementById('cardFront');
+        const cardBackElement = document.getElementById('cardBack');
+        const answerInputElement = document.getElementById('answerInput');
+        const checkButton = document.getElementById('checkButton');
+        const nextButton = document.getElementById('nextButton');
+        const feedbackElement = document.getElementById('feedback');
+        const completionMessage = document.getElementById('completionMessage');
+        const progressTextElement = document.getElementById('progressText');
+        const totalCards = flashcards.length;
+
+
+        // SPIEL-FUNKTIONEN
+
+        function showCard() {
+            if (currentCardIndex >= totalCards) {
+                showCompletion();
+                return;
+            }
+
+            const card = flashcards[currentCardIndex];
+            
+            // UI zurücksetzen
+            flashcardElement.classList.remove('flipped');
+            answerInputElement.value = '';
+            answerInputElement.className = 'answer-input';
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+            
+            // Kartentexte setzen
+            cardFrontElement.textContent = card.front;
+            cardBackElement.textContent = card.back;
+            
+            // Buttons und Zustand setzen
+            checkButton.style.display = 'inline-block';
+            nextButton.style.display = 'none';
+            checkButton.disabled = false;
+            answerInputElement.disabled = false;
+            answered = false;
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            progressTextElement.textContent = `Fortschritt: ${currentCardIndex + 1} / ${totalCards} Karten`;
+        }
+
+        function flipCard() {
+            flashcardElement.classList.toggle('flipped');
+        }
+
+        /** Entfernt unnötige Zeichen und normiert die Antwort */
+        function normalizeAnswer(text) {
+            // Entfernt Klammern, "(to)", und trimmt Leerzeichen
+            return text.toLowerCase()
+                       .replace(/\(to\)/g, '')
+                       .replace(/[\(\)]/g, '')
+                       .replace(/sth\./g, '')
+                       .replace(/in\./g, '')
+                       .trim();
+        }
+
+        function checkAnswer() {
+            if (answered) return;
+
+            const card = flashcards[currentCardIndex];
+            const rawUserAnswer = answerInputElement.value.trim();
+            
+            // Normierung der Antwort und der korrekten Lösung
+            const userAnswer = normalizeAnswer(rawUserAnswer);
+            // Korrekte Lösungen, aufgespalten bei Schrägstrich (z.B. businessman/businesswoman)
+            const correctAnswers = card.back.split('/').map(ans => normalizeAnswer(ans));
+            
+            answered = true;
+            checkButton.disabled = true;
+
+            const isCorrect = correctAnswers.some(ans => userAnswer === ans);
+            
+            if (isCorrect) {
+                answerInputElement.classList.add('correct');
+                feedbackElement.textContent = '✓ Richtig! Gut gemacht!';
+                feedbackElement.classList.add('correct');
+            } else {
+                answerInputElement.classList.add('incorrect');
+                feedbackElement.textContent = `✗ Falsch. Korrekt: "${card.back}"`;
+                feedbackElement.classList.add('incorrect');
+            }
+
+            // Karte umdrehen und nächsten Schritt anzeigen
+            setTimeout(flipCard, 500);
+            nextButton.style.display = 'inline-block';
+            answerInputElement.disabled = true;
+        }
+
+        function nextCard() {
+            currentCardIndex++;
+            showCard();
+        }
+
+        function showCompletion() {
+            document.querySelector('.input-section').style.display = 'none';
+            document.querySelector('.card-container').style.display = 'none';
+            progressTextElement.style.display = 'none';
+            completionMessage.classList.add('show');
+        }
+
+        function restartGame() {
+            currentCardIndex = 0;
+            // Die Karten neu mischen, um den Lerneffekt zu erhöhen
+            shuffleArray(flashcards); 
+            document.querySelector('.input-section').style.display = 'block';
+            document.querySelector('.card-container').style.display = 'block';
+            progressTextElement.style.display = 'block';
+            completionMessage.classList.remove('show');
+            startGame();
+        }
+        
+        /** Fisher-Yates-Shuffle-Algorithmus zum Mischen der Karten */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function startGame() {
+            showCard();
+            answerInputElement.disabled = false;
+            checkButton.disabled = false;
+            flashcardElement.removeEventListener('click', flipCard);
+            flashcardElement.addEventListener('click', flipCard);
+        }
+
+
+        // EVENT-LISTENERS
+        
+        // Startet das Spiel oder dreht die Karte, wenn geklickt wird
+        flashcardElement.addEventListener('click', () => {
+            if (currentCardIndex === 0 && !answered) {
+                // Nur beim ersten Klick wird das Spiel gestartet
+                startGame();
+            } else if (currentCardIndex > 0 || answered) {
+                // Bei bereits laufendem Spiel wird nur geflippt
+                flipCard();
+            }
+        });
+        
+        // Eingabe-Listener für Enter-Taste
+        answerInputElement.addEventListener('keypress', function(e) {
+            // Nur prüfen, wenn die Eingabe nicht deaktiviert ist
+            if (e.key === 'Enter' && !checkButton.disabled && !answerInputElement.disabled) {
+                checkAnswer();
+            }
+        });
+        
+        // Initialisierung
+        window.onload = () => {
+             // Initial die Startkarte anzeigen
+             flashcardElement.classList.remove('flipped');
+             cardFrontElement.textContent = 'Klicke zum Starten: Vokabeltrainer';
+             cardBackElement.textContent = `${totalCards} Karten warten auf dich!`;
+             progressTextElement.textContent = `Fortschritt: 0 / ${totalCards} Karten`;
+             answerInputElement.disabled = true;
+             checkButton.disabled = true;
+        }
+
+    </script>
+</body>
+</html>
