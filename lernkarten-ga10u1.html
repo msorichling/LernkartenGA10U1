@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vokabel-Trainer: Unit 1</title>
+    
+    <!-- Google Font für handschriftliche Überschrift -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
+
     <style>
         /* Modernes Blaues Styling */
         :root {
@@ -41,11 +47,14 @@
             margin-top: 5vh;
         }
 
-        .game-title {
-            font-size: 28px;
-            font-weight: 700;
+        /* HANDSCHRIFTLICHE ÜBERSCHRIFT */
+        .game-title, .menu-title {
+            font-family: 'Caveat', cursive;
+            font-size: 36px;
+            font-weight: 600;
             color: var(--color-secondary);
             margin-bottom: 20px;
+            text-align: center; /* Zentrierung */
         }
         
         /* STARTBILDSCHIRM STYLING */
@@ -57,13 +66,6 @@
             background: white; 
             border-radius: 20px;
             box-shadow: var(--shadow);
-        }
-
-        .menu-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--color-secondary);
-            margin-bottom: 40px;
         }
 
         .menu-grid {
@@ -97,7 +99,14 @@
         #progressText {
             font-weight: 500;
             color: var(--color-text);
+            margin-bottom: 5px;
+        }
+        
+        #attemptCount {
+            font-weight: bold;
+            color: var(--color-error);
             margin-bottom: 15px;
+            min-height: 1.2em;
         }
 
         /* 3D-Karten-Container */
@@ -255,6 +264,8 @@
         <header>
             <h1 class="game-title" id="gameTitle"></h1>
         </header>
+        
+        <p id="attemptCount"></p>
 
         <section class="card-container">
             <div class="flashcard" id="flashcard">
@@ -284,23 +295,23 @@
 
     <script>
         // #######################################################
-        // 1. LERNKARTEN-DATEN (Aufgeteilt nach Seiten)
+        // 1. LERNKARTEN-DATEN (Mit Lückentext-Cues)
         // #######################################################
         const allCardSets = {
             "page143": {
                 title: "Seite 143",
                 cards: [
-                    { id: 'diverse', front: 'unterschiedlich, vielfältig', back: 'diverse' },
+                    { id: 'diverse', front: 'unterschiedlich, [...]', back: 'diverse' },
                     { id: 'society', front: 'Gesellschaft', back: 'society' },
-                    { id: 'apartheid', front: 'Apartheid', back: 'apartheid' },
+                    { id: 'apartheid', front: 'Apartheid (früheres System der Trennung)', back: 'apartheid' },
                     { id: 'relation', front: 'Beziehung, Verhältnis; Bezug', back: 'relation' },
-                    { id: 'pros_cons', front: 'das Pro und Kontra; das Für und Wider', back: 'the pros and cons' },
-                    { id: 'reserve', front: 'Schutzgebiet (für Tiere)', back: 'reserve' },
-                    { id: 'facet', front: 'Facette (Betonung auf der 1. Silbe)', back: 'facet' },
+                    { id: 'pros_cons', front: 'Was sind the [...] and cons? (Für und Wider)', back: 'pros and cons' },
+                    { id: 'reserve', front: 'Schutzgebiet (an area which is protected for wildlife)', back: 'reserve' },
+                    { id: 'facet', front: 'Facette', back: 'facet' },
                     { id: 'rainbow', front: 'Regenbogen', back: 'rainbow' },
-                    { id: 'lingua_franca', front: 'Lingua Franca (Verkehrssprache)', back: 'lingua franca' },
-                    { id: 'non', front: 'Nicht- (z.B. non-stop flight)', back: 'non-' },
-                    { id: 'weigh_heavily', front: 'schwer lasten auf jm.', back: '(to) weigh heavily on sb.' },
+                    { id: 'lingua_franca', front: 'English is a [...] in many parts of the world.', back: 'lingua franca' },
+                    { id: 'non', front: 'Nicht- (non-white, non-stop flight)', back: 'non-' },
+                    { id: 'weigh_heavily', front: 'schwer lasten auf jm. (to [...] heavily on sb.)', back: 'weigh heavily on sb.' },
                     { id: 'optimistic', front: 'optimistisch', back: 'optimistic' },
                     { id: 'pessimistic', front: 'optimistisch ◀▶', back: 'pessimistic' },
                     { id: 'optimism', front: 'Optimismus', back: 'optimism' },
@@ -311,23 +322,23 @@
             "page144": {
                 title: "Seite 144",
                 cards: [
-                    { id: 'agree', front: 'etwas vereinbaren, sich einigen auf etwas', back: '(to) agree (on) sth.' },
+                    { id: 'agree', front: 'etwas vereinbaren, sich einigen. (We [...] on this text.)', back: '(to) agree (on) sth.' },
                     { id: 'people_of_colour', front: 'nicht-weiße Menschen', back: 'people of colour' },
                     { id: 'phenomenon', front: 'Phänomen, Erscheinung (pl. phenomena)', back: 'phenomenon' },
-                    { id: 'fix', front: 'etwas in Ordnung bringen; reparieren', back: '(to) fix sth.' },
-                    { id: 'wrong', front: 'Unrecht (Teach your children the difference between right and...)', back: 'wrong' },
+                    { id: 'fix', front: 'etwas in Ordnung bringen; reparieren. (I can [...] it.)', back: '(to) fix sth.' },
+                    { id: 'wrong', front: 'Unrecht. (Teach your children the difference between right and [...])', back: 'wrong' },
                     { id: 'wrong_ant', front: 'wrong ◀▶', back: 'right' },
                     { id: 'reform', front: 'Reform', back: 'reform' },
                     { id: 'youth', front: 'Jugend; Jugendlicher', back: 'youth' },
-                    { id: 'growth', front: 'Wachstum (Too much water will stop the plant’s...)', back: 'growth' },
+                    { id: 'growth', front: 'Wachstum. (Too much water will stop the plant’s [...].)', back: 'growth' },
                     { id: 'educational', front: 'Erziehungs-, Bildungs- (relating to education)', back: 'educational' },
                     { id: 'corruption', front: 'Korruption, Bestechlichkeit', back: 'corruption' },
                     { id: 'entrepreneur', front: 'Unternehmer/in ▶▶', back: 'businessman/businesswoman' },
                     { id: 'qualification', front: '(Schul-)Abschluss, Qualifikation', back: 'qualification' },
                     { id: 'diploma', front: 'Diplom, Abschlusszeugnis', back: 'diploma' },
-                    { id: 'struggle', front: 'kämpfen, sich abmühen', back: '(to) struggle' },
-                    { id: 'nanny', front: 'Kindermädchen (I’m a...)', back: 'nanny' },
-                    { id: 'party', front: 'Partei; Gruppe', back: 'party' },
+                    { id: 'struggle', front: 'kämpfen, sich abmühen. (I am [...] to understand.)', back: '(to) struggle' },
+                    { id: 'nanny', front: 'Kindermädchen (It’s my job to look after young children)', back: 'nanny' },
+                    { id: 'party', front: 'Partei; Gruppe. (I’m a member of the Green [...].)', back: 'party' },
                     { id: 'fail', front: 'scheitern; (es) nicht schaffen', back: '(to) fail' },
                     { id: 'racism', front: 'Rassismus (Betonung auf der 1. Silbe)', back: 'racism' },
                     { id: 'necessarily', front: 'zwangsläufig; (nicht) unbedingt', back: '(not) necessarily' },
@@ -337,7 +348,7 @@
             "page145": {
                 title: "Seite 145",
                 cards: [
-                    { id: 'grasp', front: 'verstehen, begreifen; (er)greifen', back: '(to) grasp' },
+                    { id: 'grasp', front: 'verstehen, begreifen. (I find that hard to [...].)', back: '(to) grasp' },
                     { id: 'township', front: 'Township (Siedlung in Südafrika)', back: 'township' },
                     { id: 'largely', front: 'größtenteils, überwiegend ▶▶', back: 'mostly' },
                     { id: 'province', front: 'Provinz, Bundesland', back: 'province' },
@@ -347,10 +358,10 @@
                     { id: 'similarity_ant', front: 'similarity ◀▶', back: 'difference' },
                     { id: 'revolution', front: 'Revolution (Betonung auf der 3. Silbe)', back: 'revolution' },
                     { id: 'particular', front: 'bestimmte(r, s), spezielle(r, s)', back: 'particular' },
-                    { id: 'transition', front: 'Übergang', back: 'transition' },
+                    { id: 'transition', front: 'Übergang. (the [...] from summer to autumn)', back: 'transition' },
                     { id: 'clothing', front: 'Kleidung (no pl.)', back: 'clothing' },
-                    { id: 'step', front: 'treten (einen Schritt tun)', back: '(to) step' },
-                    { id: 'inner', front: 'innere(r, s)', back: 'inner' },
+                    { id: 'step', front: 'treten (Please [...] closer!)', back: '(to) step' },
+                    { id: 'inner', front: 'innere(r, s). (Develop your [...] strength.)', back: 'inner' },
                     { id: 'inner_ant', front: 'inner ◀▶', back: 'outer' },
                     { id: 'twist', front: '(sich) (ver)biegen, (sich) (ver)drehen', back: '(to) twist' },
                     { id: 'shuffle', front: 'schlurfen; mit den Füßen scharren', back: '(to) shuffle' },
@@ -363,7 +374,7 @@
             "page146": {
                 title: "Seite 146",
                 cards: [
-                    { id: 'resistance', front: 'Widerstand; Resistenz', back: 'resistance' },
+                    { id: 'resistance', front: 'Widerstand; Resistenz. (Don’t you expect [...].)', back: 'resistance' },
                     { id: 'shift', front: '(sich) verlagern; (sich) verändern', back: '(to) shift' },
                     { id: 'impulse', front: 'Impuls (Betonung auf der 1. Silbe)', back: 'impulse' },
                     { id: 'respond', front: 'reagieren, antworten (auf)', back: '(to) respond (to)' },
@@ -372,19 +383,19 @@
                     { id: 'era', front: 'Ära, Epoche', back: 'era' },
                     { id: 'chain', front: 'anketten, fesseln (mit Ketten)', back: '(to) chain' },
                     { id: 'slap', front: 'schlagen; knallen; klatschen', back: '(to) slap' },
-                    { id: 'stomp', front: 'stampfen (He’s stomping...)', back: '(to) stomp' },
+                    { id: 'stomp', front: 'stampfen', back: '(to) stomp' },
                     { id: 'combine', front: 'verbinden, kombinieren', back: '(to) combine' },
                     { id: 'hardship', front: 'Not, Mühsal, harte Umstände', back: 'hardship' },
                     { id: 'celebration', front: 'Feier', back: 'celebration' },
                     { id: 'choreographer', front: 'Choreograf/in (Betonung auf der 3. Silbe)', back: 'choreographer' },
-                    { id: 'hurry', front: 'sich beeilen; eilen (Hurry up!)', back: '(to) hurry' }
+                    { id: 'hurry', front: 'sich beeilen; eilen. ([...] up!)', back: '(to) hurry' }
                 ]
             },
             "page147": {
                 title: "Seite 147",
                 cards: [
                     { id: 'game', front: 'Wild (Tiere, Fleisch)', back: 'game' },
-                    { id: 'habitat', front: 'Lebensraum', back: 'habitat' },
+                    { id: 'habitat', front: 'Lebensraum (natural [...] of the Tasmanian devil)', back: 'habitat' },
                     { id: 'rhino', front: 'Nashorn (infml)', back: 'rhino' },
                     { id: 'leopard', front: 'Leopard (Betonung auf der 1. Silbe)', back: 'leopard' },
                     { id: 'buffalo', front: 'Büffel; Bison', back: 'buffalo' },
@@ -398,7 +409,7 @@
                     { id: 'nurse', front: 'pflegen; (aus)kurieren', back: '(to) nurse' },
                     { id: 'return', front: 'zurückgeben, zurückbringen', back: '(to) return' },
                     { id: 'in_the_wild', front: 'in der Wildnis / in die Wildnis', back: 'in the wild / to the wild' },
-                    { id: 'rescue', front: 'Rettung (rescue centre)', back: 'rescue' },
+                    { id: 'rescue', front: 'Rettung', back: 'rescue' },
                     { id: 'circus', front: 'Zirkus', back: 'circus' },
                     { id: 'lifelong', front: 'lebenslang', back: 'lifelong' },
                     { id: 'worldwide', front: 'weltweit ▶▶', back: 'worldwide' },
@@ -413,14 +424,14 @@
                     { id: 'cub', front: '(Löwen-, Bären-)Junges', back: 'cub' },
                     { id: 'breed', front: 'brüten, Junge bekommen; züchten', back: '(to) breed' },
                     { id: 'captive', front: 'gefangen, in Gefangenschaft', back: 'captive' },
-                    { id: 'enclose', front: 'etwas (mit etwas) umgeben', back: '(to) enclose sth. in/with sth.' },
+                    { id: 'enclose', front: 'etwas (mit etwas) umgeben. (High walls [...] the castle gardens.)', back: '(to) enclose sth. in/with sth.' },
                     { id: 'instinct', front: 'Instinkt (Betonung auf der 1. Silbe)', back: 'instinct' },
                     { id: 'profit', front: 'profitieren (von)', back: '(to) profit (from)' },
                     { id: 'widespread', front: '(weit) verbreitet', back: 'widespread' },
                     { id: 'petition', front: 'Antrag, Petition (Unterschriftensammlung)', back: 'petition' },
                     { id: 'practice', front: 'Praktik, Vorgehensweise; Praxis', back: 'practice' },
                     { id: 'questionable', front: 'fragwürdig', back: 'questionable' },
-                    { id: 'operator', front: 'Betreiber/in (z.B. tour operator)', back: 'operator' },
+                    { id: 'operator', front: 'Betreiber/in (a tour [...])', back: 'operator' },
                     { id: 'brutal', front: 'brutal (Betonung auf der 1. Silbe)', back: 'brutal' },
                     { id: 'canned_hunting', front: 'Jagd auf in Gefangenschaft gezogene Tiere', back: 'canned hunting' },
                     { id: 'complaint', front: 'Beschwerde', back: 'complaint' },
@@ -436,7 +447,7 @@
                     { id: 'partial', front: 'teilweise, Teil-', back: 'partial' },
                     { id: 'refund', front: 'Rückzahlung, (Kosten-)Erstattung', back: 'refund' },
                     { id: 'receipt', front: '(Kauf-)Beleg, Quittung, Kassenzettel', back: 'receipt' },
-                    { id: 'consequence', front: 'Folge, Konsequenz (As a consequence...)', back: 'consequence' },
+                    { id: 'consequence', front: 'Folge, Konsequenz. (As a [...], I did badly.)', back: 'consequence' },
                     { id: 'demand', front: 'fordern, verlangen', back: '(to) demand' },
                     { id: 'elaborate', front: 'näher ausführen; ins Detail gehen', back: '(to) elaborate' },
                     { id: 'prompt', front: 'Stichwort, Vorgabe', back: 'prompt' },
@@ -457,12 +468,12 @@
                     { id: 'yell', front: '(an)schreien, (an)brüllen', back: '(to) yell (at)' },
                     { id: 'pandemonium', front: 'Tumult, Chaos (no plural)', back: 'pandemonium' },
                     { id: 'genuine', front: 'echt, wirklich; aufrichtig', back: 'genuine' },
-                    { id: 'clue', front: '(Lösungs-)Hinweis; Anhaltspunkt (I don’t have a...)', back: 'clue' },
+                    { id: 'clue', front: '(Lösungs-)Hinweis. (I don’t have a [...].)', back: 'clue' },
                     { id: 'face_to_face', front: 'von Angesicht zu Angesicht', back: 'face to face' },
-                    { id: 'homeland', front: 'Heimat(land); (Südafrika:) Homeland', back: 'homeland' },
-                    { id: 'option', front: 'Wahl(möglichkeit), Option (I had no option/choice)', back: 'option' },
-                    { id: 'leg_up', front: 'jm. einen Vorsprung verschaffen (infml)', back: '(to) give sb. a leg up' },
-                    { id: 'comprehension', front: 'Verständnis (English comprehension)', back: 'comprehension' },
+                    { id: 'homeland', front: 'Heimat(land)', back: 'homeland' },
+                    { id: 'option', front: 'Wahl(möglichkeit), Option', back: 'option' },
+                    { id: 'leg_up', front: 'jm. einen Vorsprung verschaffen', back: '(to) give sb. a leg up' },
+                    { id: 'comprehension', front: 'Verständnis (English [...])', back: 'comprehension' },
                     { id: 'equate', front: 'etwas gleichsetzen (mit)', back: '(to) equate sth. (with)' },
                     { id: 'intelligence', front: 'Intelligenz (Betonung auf der 2. Silbe)', back: 'intelligence' }
                 ]
@@ -470,9 +481,9 @@
             "page151": {
                 title: "Seite 151",
                 cards: [
-                    { id: 'dock', front: 'Anklagebank (to be in the dock)', back: 'dock' },
+                    { id: 'dock', front: 'Anklagebank (to be in the [...])', back: 'dock' },
                     { id: 'get_away', front: 'davonkommen (mit)', back: '(to) get away (with) / (to) get off (with)' },
-                    { id: 'fine', front: 'Geldstrafe', back: 'fine' },
+                    { id: 'fine', front: 'Geldstrafe (You might have to pay a [...].)', back: 'fine' },
                     { id: 'naughty', front: 'ungezogen, frech, unartig', back: 'naughty' },
                     { id: 'versed_in', front: 'versiert in etwas sein, gute Kenntnisse haben', back: '(to) be versed in sth.' },
                     { id: 'pick_up', front: 'sich etwas aneignen (Sprache/Kenntnisse)', back: '(to) pick sth. up' },
@@ -480,7 +491,7 @@
                     { id: 'idiot', front: 'Idiot/in (Betonung auf der 1. Silbe)', back: 'idiot' },
                     { id: 'passionate', front: 'leidenschaftlich', back: 'passionate' },
                     { id: 'oppress', front: 'unterdrücken', back: '(to) oppress' },
-                    { id: 'boundary', front: 'Grenze (Music can cross cultural...)', back: 'boundary' },
+                    { id: 'boundary', front: 'Grenze (Music can cross cultural [...])', back: 'boundary' },
                     { id: 'handle', front: 'mit etwas umgehen, etwas handhaben', back: '(to) handle sth.' },
                     { id: 'navigate', front: 'navigieren, den Weg finden', back: '(to) navigate' },
                     { id: 'shopkeeper', front: 'Ladenbesitzer/in', back: 'shopkeeper' },
@@ -493,16 +504,16 @@
             "page152": {
                 title: "Seite 152",
                 cards: [
-                    { id: 'serve', front: 'servieren; Kundschaft bedienen; dienen', back: '(to) serve' },
+                    { id: 'serve', front: 'servieren; Kundschaft bedienen; dienen. (This could [...] as an example.)', back: '(to) serve' },
                     { id: 'mug', front: 'jn. überfallen (Straßenraub)', back: '(to) mug sb.' },
                     { id: 'dude', front: 'Mann, Alter (Anrede, infml)', back: 'dude' },
                     { id: 'incident', front: 'Vorfall, Zwischenfall', back: 'incident' },
                     { id: 'define', front: 'definieren', back: '(to) define' },
                     { id: 'chameleon', front: 'Chamäleon (Echsenart)', back: 'chameleon' },
                     { id: 'perception', front: 'Wahrnehmung', back: 'perception' },
-                    { id: 'barrier', front: 'Barriere (z.B. für Rollstuhlfahrer)', back: 'barrier' },
-                    { id: 'architect', front: 'Architekt/in (Betonung auf der 1. Silbe)', back: 'architect' },
-                    { id: 'effort', front: 'Anstrengung, Mühe (to make an effort)', back: 'effort' },
+                    { id: 'barrier', front: 'Barriere', back: 'barrier' },
+                    { id: 'architect', front: 'Architekt/in', back: 'architect' },
+                    { id: 'effort', front: 'Anstrengung, Mühe. (to make an [...])', back: 'effort' },
                     { id: 'physical', front: 'körperlich, physisch', back: 'physical' },
                     { id: 'mood', front: 'Stimmung, Laune', back: 'mood' },
                     { id: 'atmosphere', front: 'Atmosphäre (Betonung auf der 1. Silbe)', back: 'atmosphere' },
@@ -519,9 +530,11 @@
         // #######################################################
         // 2. SPIELZUSTAND & DOM-ELEMENTE
         // #######################################################
+        const MAX_ATTEMPTS = 3;
         let currentCardIndex = 0;
         let answered = false;
-        let flashcards = []; // Wird erst beim Start eines Sets geladen
+        let failedAttempts = 0; // Neu: Zähler für Fehlversuche
+        let flashcards = []; 
         let totalCards = 0;
 
         const menuScreen = document.getElementById('menu-screen');
@@ -534,7 +547,7 @@
         const answerInputElement = document.getElementById('answerInput');
         const checkButton = document.getElementById('checkButton');
         const nextButton = document.getElementById('nextButton');
-        const menuButton = document.getElementById('menuButton'); // Der neue Menü-Button
+        const attemptCountElement = document.getElementById('attemptCount'); // Neu: Versuchsanzeige
         const feedbackElement = document.getElementById('feedback');
         const completionMessage = document.getElementById('completionMessage');
         const progressTextElement = document.getElementById('progressText');
@@ -546,9 +559,8 @@
         
         /** Erzeugt die Auswahl-Buttons aus den Daten */
         function renderMenu() {
-            menuGrid.innerHTML = ''; // Vorherige Buttons entfernen
+            menuGrid.innerHTML = ''; 
             
-            // Sortiert die Keys (page143, page144, ...) numerisch
             const sortedKeys = Object.keys(allCardSets).sort((a, b) => {
                 return parseInt(a.replace('page', '')) - parseInt(b.replace('page', ''));
             });
@@ -584,17 +596,14 @@
 
         /** Geht vom Spiel zurück zur Menü-Auswahl */
         function backToMenu() {
-            // Zeigt die versteckten Bereiche wieder an, falls das Spiel beendet wurde
             document.querySelector('.input-section').style.display = 'block';
             document.querySelector('.card-container').style.display = 'block';
-            
-            // Versteckt Abschlussnachricht und startet das Menü-Rendering
             completionMessage.classList.remove('show');
             renderMenu();
         }
 
         // #######################################################
-        // 4. SPIEL FUNKTIONEN (Kern-Logik)
+        // 4. SPIEL FUNKTIONEN (Kern-Logik mit Versuchszähler)
         // #######################################################
 
         function showCard() {
@@ -605,12 +614,15 @@
 
             const card = flashcards[currentCardIndex];
             
+            // UI zurücksetzen
             flashcardElement.classList.remove('flipped');
             answerInputElement.value = '';
             answerInputElement.className = 'answer-input';
             feedbackElement.textContent = '';
             feedbackElement.className = 'feedback';
-
+            failedAttempts = 0; // Zähler zurücksetzen
+            
+            // Kartentexte und UI-Elemente setzen
             cardFrontElement.textContent = card.front;
             cardBackElement.textContent = card.back;
             
@@ -621,20 +633,32 @@
             answered = false;
 
             updateProgress();
+            updateAttemptCount();
         }
 
         function updateProgress() {
             progressTextElement.textContent = `Karte: ${currentCardIndex + 1} / ${totalCards}`;
+        }
+        
+        function updateAttemptCount() {
+            const remaining = MAX_ATTEMPTS - failedAttempts;
+            if (remaining > 0) {
+                 attemptCountElement.textContent = `Versuche verbleibend: ${remaining}`;
+                 attemptCountElement.style.color = remaining === 1 ? varColorError : varColorText;
+            } else {
+                 attemptCountElement.textContent = '';
+            }
         }
 
         function flipCard() {
             flashcardElement.classList.toggle('flipped');
         }
 
+        /** Entfernt unnötige Zeichen, Klammern, (to) und normiert die Antwort */
         function normalizeAnswer(text) {
-            // Bereinigt die Antwort für den Vergleich
+            // Entspricht der Anforderung, (to) zu ignorieren
             return text.toLowerCase()
-                       .replace(/\(to\)/g, '')
+                       .replace(/\(to\)/g, '') 
                        .replace(/[\(\)]/g, '')
                        .replace(/sth\./g, '')
                        .replace(/in\./g, '')
@@ -650,24 +674,52 @@
             const userAnswer = normalizeAnswer(rawUserAnswer);
             const correctAnswers = card.back.split('/').map(ans => normalizeAnswer(ans));
             
-            answered = true;
-            checkButton.disabled = true;
-
             const isCorrect = correctAnswers.some(ans => userAnswer === ans);
             
             if (isCorrect) {
+                // FALL 1: KORREKT
+                answered = true;
+                checkButton.disabled = true;
                 answerInputElement.classList.add('correct');
                 feedbackElement.textContent = '✓ Richtig! Gut gemacht!';
                 feedbackElement.classList.add('correct');
+                
+                // Nächsten Schritt anzeigen
+                setTimeout(flipCard, 500);
+                nextButton.style.display = 'inline-block';
+                answerInputElement.disabled = true;
+                attemptCountElement.textContent = '';
+                
             } else {
+                // FALL 2: FALSCH
+                failedAttempts++;
+                
                 answerInputElement.classList.add('incorrect');
-                feedbackElement.textContent = `✗ Falsch. Korrekt: "${card.back}"`;
-                feedbackElement.classList.add('incorrect');
-            }
+                
+                if (failedAttempts >= MAX_ATTEMPTS) {
+                    // FALL 2a: Falsch und MAX_ATTEMPTS erreicht
+                    answered = true;
+                    checkButton.disabled = true;
+                    feedbackElement.textContent = `✗ Falsch. Die korrekte Antwort war: "${card.back}"`;
+                    feedbackElement.classList.add('incorrect');
+                    
+                    // Nächsten Schritt anzeigen
+                    setTimeout(flipCard, 500);
+                    nextButton.style.display = 'inline-block';
+                    answerInputElement.disabled = true;
+                    attemptCountElement.textContent = '';
 
-            setTimeout(flipCard, 500);
-            nextButton.style.display = 'inline-block';
-            answerInputElement.disabled = true;
+                } else {
+                    // FALL 2b: Falsch, aber weitere Versuche erlaubt
+                    answerInputElement.classList.remove('correct', 'incorrect'); // Visuell zurücksetzen
+                    answerInputElement.value = ''; // Eingabe leeren
+                    feedbackElement.textContent = `Falsch. Versuch ${failedAttempts} von ${MAX_ATTEMPTS} fehlgeschlagen.`;
+                    feedbackElement.classList.remove('correct');
+                    feedbackElement.classList.add('incorrect');
+                    
+                    updateAttemptCount();
+                }
+            }
         }
 
         function nextCard() {
@@ -679,6 +731,7 @@
             document.querySelector('.input-section').style.display = 'none';
             document.querySelector('.card-container').style.display = 'none';
             progressTextElement.style.display = 'none';
+            attemptCountElement.style.display = 'none';
             completionMessage.classList.add('show');
         }
 
@@ -688,6 +741,7 @@
             document.querySelector('.input-section').style.display = 'block';
             document.querySelector('.card-container').style.display = 'block';
             progressTextElement.style.display = 'block';
+            attemptCountElement.style.display = 'block';
             completionMessage.classList.remove('show');
             startGame();
         }
@@ -710,8 +764,10 @@
         // 5. INITIALISIERUNG
         // #######################################################
         
-        // Initialisiert die App mit dem Menü
         window.onload = () => {
+             // CSS-Variable für Fehlermeldung im JS verfügbar machen
+             window.varColorError = getComputedStyle(document.documentElement).getPropertyValue('--color-error');
+             window.varColorText = getComputedStyle(document.documentElement).getPropertyValue('--color-text');
              renderMenu();
         }
     </script>
