@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
 
     <style>
-        /* Dezentes Grün-Styling */
+        /* Dezentes Grün-Styling (Wie ursprünglich) */
         :root {
             --color-primary: #66bb6a; /* Helles Moosgrün */
             --color-secondary: #388e3c; /* Dunkles Waldgrün */
@@ -558,7 +558,7 @@
         function renderMenu() {
             menuGrid.innerHTML = ''; 
             
-            // Sortiert die Keys (page153, page154, ...) numerisch
+            // Sortiert die Keys (page163, page164, ...) numerisch
             const sortedKeys = Object.keys(allCardSets).sort((a, b) => {
                 return parseInt(a.replace('page', '')) - parseInt(b.replace('page', ''));
             });
@@ -604,26 +604,22 @@
         // 4. SPIEL FUNKTIONEN (Kern-Logik mit Versuchszähler)
         // #######################################################
 
-        function showCard() {
-            if (currentCardIndex >= totalCards) {
-                showCompletion();
-                return;
-            }
-
+        /** Lädt den Inhalt der aktuellen Karte und setzt die UI zurück */
+        function loadCardContent() {
             const card = flashcards[currentCardIndex];
             
-            // UI zurücksetzen
-            flashcardElement.classList.remove('flipped');
+            // UI reset
             answerInputElement.value = '';
             answerInputElement.className = 'answer-input';
             feedbackElement.textContent = '';
             feedbackElement.className = 'feedback';
             failedAttempts = 0; 
             
-            // Kartentexte und UI-Elemente setzen
+            // Set content
             cardFrontElement.textContent = card.front;
             cardBackElement.textContent = card.back;
             
+            // Enable controls
             checkButton.style.display = 'inline-block';
             nextButton.style.display = 'none';
             checkButton.disabled = false;
@@ -632,9 +628,26 @@
 
             updateProgress();
             updateAttemptCount();
-            
-            // Cursor auf default setzen, da manuelle Klicks deaktiviert sind
             flashcardElement.style.cursor = 'default'; 
+        }
+        
+        function showCard() {
+            if (currentCardIndex >= totalCards) {
+                showCompletion();
+                return;
+            }
+
+            // NEUE LOGIK FÜR FLICKER-FIX
+            const isFlipped = flashcardElement.classList.contains('flipped');
+            flashcardElement.classList.remove('flipped'); // Startet die 0.6s Animation
+
+            if (isFlipped) {
+                // Wenn die Karte umgedreht war, warten wir 600ms, bis die Rotation beendet ist, bevor wir den neuen Inhalt laden
+                setTimeout(loadCardContent, 600);
+            } else {
+                // Wenn es die erste Karte ist oder die Karte nicht umgedreht war, sofort laden
+                loadCardContent();
+            }
         }
 
         function updateProgress() {
@@ -680,11 +693,11 @@
             const card = flashcards[currentCardIndex];
             const rawUserAnswer = answerInputElement.value.trim();
             
+            // Die Prüfung ist jetzt case-sensitive
             const userAnswer = normalizeAnswer(rawUserAnswer);
             // Korrekte Antworten werden ebenfalls nur bereinigt (ohne .toLowerCase())
             const correctAnswers = card.back.split('/').map(ans => normalizeAnswer(ans)); 
             
-            // Prüfung ist nun case-sensitive
             const isCorrect = correctAnswers.some(ans => userAnswer === ans);
             
             if (isCorrect) {
@@ -729,7 +742,7 @@
                         answerInputElement.value = ''; 
                     }, 500);
                     
-                    feedbackElement.textContent = `Falsch. Versuch ${failedAttempts} von ${MAX_ATTEMPTS} fehlgeschlagen.`;
+                    feedbackElement.textContent = `Falsch. Versuch ${failedAttempts} von ${MAX_ATTEMPTS} fehlgeschlagen. Achte auf die Groß-/Kleinschreibung!`;
                     feedbackElement.classList.remove('correct');
                     feedbackElement.classList.add('incorrect');
                     
@@ -771,9 +784,11 @@
         
         function startGame() {
             showCard();
-            // Manuelles Flippen durch Klick deaktiviert
+            // Stellt sicher, dass die Klick-Logik nur bei "answered = true" funktioniert
             flashcardElement.removeEventListener('click', flipCard);
-            // Event Listener für Enter-Taste
+            flashcardElement.addEventListener('click', flipCard);
+            
+            // Fängt Enter-Taste ab
             answerInputElement.removeEventListener('keypress', handleKeypress);
             answerInputElement.addEventListener('keypress', handleKeypress);
         }
