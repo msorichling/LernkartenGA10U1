@@ -3,22 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcards Unit 1</title>
+    <title>Vokabel-Trainer: Unit 1</title>
     
+    <!-- Google Font für handschriftliche Überschrift -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
 
     <style>
-        /* Einheitliche Farbpalette für Unit 1 (Cyan/Türkis) */
+        /* Modernes Blaues Styling */
         :root {
-            --color-primary: #00bcd4; 
-            --color-secondary: #00838f; 
-            --color-background: #e0f7fa; 
-            --color-text: #263238;
-            --color-success: #43a047;
-            --color-error: #e53935;
-            --color-card: #ffffff;
+            --color-primary: #1e88e5; /* Helles Blau */
+            --color-secondary: #0d47a1; /* Dunkles Blau */
+            --color-background: #e3f2fd; /* Sehr helles Blau */
+            --color-text: #263238; /* Dunkelgrau */
+            --color-success: #43a047; /* Grün für Korrekt */
+            --color-error: #e53935; /* Rot für Fehler */
+            --color-card-front: #42a5f5; /* Kartenfarbe Vorderseite */
+            --color-card-back: #26c6da; /* Kartenfarbe Rückseite */
             --shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
         
@@ -26,7 +28,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 20px;
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, var(--color-background) 0%, var(--color-primary) 100%);
             min-height: 100vh;
             display: flex;
@@ -34,46 +36,92 @@
             align-items: center;
         }
 
-        .main-container {
-            background: var(--color-card);
+        .game-container {
+            background: white;
             border-radius: 20px;
             padding: 30px;
             box-shadow: var(--shadow);
-            max-width: 800px;
+            max-width: 550px;
             width: 95%;
-            margin-top: 5vh;
-            border: 1px solid var(--color-primary);
             text-align: center;
+            margin-top: 5vh;
         }
 
-        .title {
+        /* HANDSCHRIFTLICHE ÜBERSCHRIFT */
+        .game-title, .menu-title {
             font-family: 'Caveat', cursive;
-            font-size: 38px;
+            font-size: 36px;
             font-weight: 600;
             color: var(--color-secondary);
             margin-bottom: 20px;
-            border-bottom: 2px solid var(--color-primary);
-            padding-bottom: 10px;
+            text-align: center; /* Zentrierung */
+        }
+        
+        /* STARTBILDSCHIRM STYLING */
+        #menu-screen {
+            padding: 30px;
+            max-width: 600px;
+            width: 95%;
+            margin-top: 10vh;
+            background: white; 
+            border-radius: 20px;
+            box-shadow: var(--shadow);
         }
 
-        /* --- CARD STYLING --- */
-        .card-container {
-            perspective: 1000px; 
-            margin: 40px auto;
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .menu-button {
             width: 100%;
-            max-width: 450px;
-            height: 300px;
+            background-color: var(--color-background);
+            color: var(--color-secondary);
+            border: 2px solid var(--color-primary);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-button:hover {
+            background-color: var(--color-primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Fortschrittsanzeige */
+        #progressText {
+            font-weight: 500;
+            color: var(--color-text);
+            margin-bottom: 5px;
+        }
+        
+        #attemptCount {
+            font-weight: bold;
+            color: var(--color-error);
+            margin-bottom: 15px;
+            min-height: 1.2em;
+        }
+
+        /* 3D-Karten-Container */
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
         }
 
         .flashcard {
             width: 100%;
-            height: 100%;
+            height: 220px;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.6s;
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            border-radius: 15px;
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            /* KEIN CURSOR:pointer, um versehentliches Klicken zu verhindern */
         }
 
         .flashcard.flipped {
@@ -85,310 +133,648 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
             border-radius: 15px;
-            font-size: 1.5em;
-            padding: 20px;
-            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 600;
             text-align: center;
+            padding: 25px;
+            box-sizing: border-box;
+            color: white;
             line-height: 1.4;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
-
+        
+        /* Kartenfarben */
         .card-front {
-            background-color: var(--color-primary);
-            color: var(--color-text);
-            border: 3px solid var(--color-secondary);
+            background: linear-gradient(135deg, var(--color-card-front), #1565c0);
         }
 
         .card-back {
-            background-color: var(--color-card);
-            color: var(--color-text);
+            background: linear-gradient(135deg, var(--color-card-back), #00838f);
             transform: rotateY(180deg);
-            border: 3px solid var(--color-secondary);
         }
         
-        .card-back .solution-text {
-            font-size: 1.2em;
-            color: var(--color-secondary);
-            font-weight: 700;
-        }
-
-        .card-back .context-text {
-            font-size: 0.9em;
-            margin-top: 10px;
-        }
-
-        /* --- CONTROLS --- */
-        .input-area {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .input-area input {
-            padding: 10px;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            font-size: 1em;
-            width: 250px;
-        }
-        
-        .check-button, .flip-button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            font-weight: 700;
-        }
-
-        .check-button {
-            background-color: var(--color-secondary);
-            color: white;
-        }
-        .check-button:hover {
-            background-color: var(--color-primary);
-            color: var(--color-text);
-        }
-
-        .flip-button {
-            background-color: #f0f0f0;
-            color: var(--color-text);
-        }
-
-        .message-box {
-            margin-top: 20px;
+        /* Eingabe und Feedback */
+        .answer-input {
+            width: 100%;
             padding: 15px;
-            border-radius: 8px;
-            font-weight: 700;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .answer-input.correct {
+            border-color: var(--color-success);
+            background-color: #f1f8e9;
+        }
+
+        .answer-input.incorrect {
+            border-color: var(--color-error);
+            background-color: #ffebee;
+        }
+
+        .feedback {
+            margin: 15px 0;
+            font-weight: 600;
             min-height: 20px;
         }
-        
-        .message-box.success {
-            background-color: var(--color-success);
+
+        .feedback.correct { color: var(--color-success); }
+        .feedback.incorrect { color: var(--color-error); }
+
+        /* Buttons (Spiel) */
+        .button {
+            background-color: var(--color-primary);
             color: white;
-        }
-        
-        .message-box.error {
-            background-color: var(--color-error);
-            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0 5px 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .counter {
-            margin-top: 20px;
-            font-size: 0.9em;
-            color: var(--color-text);
+        .button:hover:not(:disabled) {
+            background-color: var(--color-secondary);
+            transform: translateY(-2px);
         }
-        
-        .navigation {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        
-        .nav-button {
-            padding: 10px 20px;
-            background-color: var(--color-primary);
-            color: var(--color-text);
-            border: 2px solid var(--color-secondary);
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-            transition: opacity 0.3s;
-        }
-        
-        .nav-button:disabled {
+
+        .button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
         }
 
+        .button.next-button {
+            background-color: var(--color-success);
+        }
+        .button.next-button:hover:not(:disabled) {
+            background-color: #388e3c;
+        }
+
+        .button.back-button {
+            background-color: #9e9e9e; /* Grau */
+        }
+        .button.back-button:hover:not(:disabled) {
+            background-color: #757575;
+        }
+        
+        /* Abschlussmeldung */
+        .completion-message {
+            background: linear-gradient(45deg, #ffb300, #ff8f00); 
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+        
+        .completion-message.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
     
-    <div class="main-container">
-        <h1 class="title">Flashcards Unit 1</h1>
+    <!-- STARTBILDSCHIRM (Wird zuerst angezeigt) -->
+    <section id="menu-screen">
+        <h1 class="menu-title">Unit 1: Vokabel-Trainer</h1>
+        <div class="menu-grid" id="menuGrid">
+            <!-- Buttons werden hier von JavaScript eingefügt -->
+        </div>
+    </section>
+
+    <!-- SPIEL-BEREICH (Ist standardmäßig versteckt) -->
+    <main class="game-container" id="gameContainer" style="display: none;">
+        <header>
+            <h1 class="game-title" id="gameTitle"></h1>
+        </header>
         
-        <div class="card-container">
-            <div class="flashcard" id="flashcard" onclick="flipCard()">
-                <div class="card-face card-front" id="cardFront">
-                    <!-- Front content -->
-                </div>
-                <div class="card-face card-back" id="cardBack">
-                    <!-- Back content -->
-                </div>
+        <p id="attemptCount"></p>
+
+        <section class="card-container">
+            <div class="flashcard" id="flashcard">
+                <div class="card-face card-front" id="cardFront"></div>
+                <div class="card-face card-back" id="cardBack"></div>
             </div>
-        </div>
+        </section>
 
-        <div class="input-area">
-            <input type="text" id="answerInput" placeholder="Deine Antwort eingeben">
-            <button class="check-button" onclick="checkAnswer()">Prüfen</button>
-        </div>
-        
-        <div class="message-box" id="messageBox"></div>
+        <p id="progressText"></p>
 
-        <div class="counter" id="cardCounter"></div>
-        
-        <div class="navigation">
-            <button class="nav-button" id="prevButton" onclick="changeCard(-1)" disabled>← Zurück</button>
-            <button class="nav-button" id="nextButton" onclick="changeCard(1)" disabled>Nächste →</button>
+        <section class="input-section">
+            <input type="text" class="answer-input" id="answerInput" placeholder="Englische Antwort eingeben..." disabled>
+            <div class="feedback" id="feedback"></div>
+            
+            <button class="button" id="checkButton" onclick="checkAnswer()" disabled>Antwort prüfen</button>
+            <button class="button next-button" id="nextButton" onclick="nextCard()" style="display: none;">Nächste Karte</button>
+            <button class="button back-button" id="menuButton" onclick="backToMenu()">Zurück zum Menü</button>
+        </section>
+
+        <div class="completion-message" id="completionMessage">
+            <h3>Glückwunsch! 🎉</h3>
+            <p>Du hast alle Karten erfolgreich durchgearbeitet.</p>
+            <button class="button" onclick="restartGame()">Nochmal spielen</button>
+            <button class="button back-button" onclick="backToMenu()">Zurück zum Menü</button>
         </div>
-    </div>
+    </main>
 
     <script>
         // #######################################################
-        // 1. ÜBUNGSDATEN (Glossar Unit 1)
-        // Format: {term: 'Begriff auf Deutsch', definition: 'Übersetzung / Erklärung'}
+        // 1. LERNKARTEN-DATEN (Mit Lückentext-Cues)
         // #######################################################
-        const flashcardData = [
-            { term: "Erkenntnis gewinnen", definition: "to gain recognition" },
-            { term: "jemanden bewundern", definition: "to look up to somebody" },
-            { term: "unwahrscheinlich", definition: "unlikely" },
-            { term: "Schlaf", definition: "shut-eye" },
-            { term: "sich etwas aneignen", definition: "to take on" },
-            { term: "Einsicht bekommen", definition: "to get an insight" },
-            { term: "aufschieben", definition: "to put off" },
-            { term: "mit etwas fertig werden", definition: "to come to terms with sth." },
-            { term: "von etwas schockiert sein", definition: "to be taken aback by sth." },
-            { term: "etwas verpassen", definition: "to miss out on sth." },
-            { term: "verletzt", definition: "injured" },
-            { term: "der Öffentlichkeit bekannt machen", definition: "to go public with sth." },
-            { term: "mit jemanden in Kontakt bleiben", definition: "to keep in touch with sb." },
-            { term: "Fähigkeit / Kapazität", definition: "capacity" },
-            { term: "einem Risiko ausgesetzt", definition: "at risk" },
-            { term: "verankert sein / stecken bleiben", definition: "to be stuck" },
-            { term: "sicher sein / müssen", definition: "to be bound to" },
-            { term: "von etwas überzeugt sein", definition: "to be certain of sth." },
-            { term: "eine Entscheidung treffen", definition: "to make up one's mind" },
-            { term: "etwas kaum schaffen", definition: "to manage to do sth." }
-        ];
+        const allCardSets = {
+            "page143": {
+                title: "Seite 143",
+                cards: [
+                    { id: 'diverse', front: 'unterschiedlich, [...]', back: 'diverse' },
+                    { id: 'society', front: 'Gesellschaft', back: 'society' },
+                    { id: 'apartheid', front: 'Apartheid (früheres System der Trennung)', back: 'apartheid' },
+                    { id: 'relation', front: 'Beziehung, Verhältnis; Bezug', back: 'relation' },
+                    { id: 'pros_cons', front: 'Was sind the [...] and cons? (Für und Wider)', back: 'pros and cons' },
+                    { id: 'reserve', front: 'Schutzgebiet (an area which is protected for wildlife)', back: 'reserve' },
+                    { id: 'facet', front: 'Facette', back: 'facet' },
+                    { id: 'rainbow', front: 'Regenbogen', back: 'rainbow' },
+                    { id: 'lingua_franca', front: 'English is a [...] in many parts of the world.', back: 'lingua franca' },
+                    { id: 'non', front: 'Nicht- (non-white, non-stop flight)', back: 'non-' },
+                    { id: 'weigh_heavily', front: 'schwer lasten auf jm. (to [...] heavily on sb.)', back: 'weigh heavily on sb.' },
+                    { id: 'optimistic', front: 'optimistisch', back: 'optimistic' },
+                    { id: 'pessimistic', front: 'optimistisch ◀▶', back: 'pessimistic' },
+                    { id: 'optimism', front: 'Optimismus', back: 'optimism' },
+                    { id: 'pessimism', front: 'Optimismus ◀▶', back: 'pessimism' },
+                    { id: 'beyond', front: 'jenseits, außerhalb, weiter als', back: 'beyond' }
+                ]
+            },
+            "page144": {
+                title: "Seite 144",
+                cards: [
+                    { id: 'agree', front: 'etwas vereinbaren, sich einigen. (We [...] on this text.)', back: '(to) agree (on) sth.' },
+                    { id: 'people_of_colour', front: 'nicht-weiße Menschen', back: 'people of colour' },
+                    { id: 'phenomenon', front: 'Phänomen, Erscheinung (pl. phenomena)', back: 'phenomenon' },
+                    { id: 'fix', front: 'etwas in Ordnung bringen; reparieren. (I can [...] it.)', back: '(to) fix sth.' },
+                    { id: 'wrong', front: 'Unrecht. (Teach your children the difference between right and [...])', back: 'wrong' },
+                    { id: 'wrong_ant', front: 'wrong ◀▶', back: 'right' },
+                    { id: 'reform', front: 'Reform', back: 'reform' },
+                    { id: 'youth', front: 'Jugend; Jugendlicher', back: 'youth' },
+                    { id: 'growth', front: 'Wachstum. (Too much water will stop the plant’s [...].)', back: 'growth' },
+                    { id: 'educational', front: 'Erziehungs-, Bildungs- (relating to education)', back: 'educational' },
+                    { id: 'corruption', front: 'Korruption, Bestechlichkeit', back: 'corruption' },
+                    { id: 'entrepreneur', front: 'Unternehmer/in ▶▶', back: 'businessman/businesswoman' },
+                    { id: 'qualification', front: '(Schul-)Abschluss, Qualifikation', back: 'qualification' },
+                    { id: 'diploma', front: 'Diplom, Abschlusszeugnis', back: 'diploma' },
+                    { id: 'struggle', front: 'kämpfen, sich abmühen. (I am [...] to understand.)', back: '(to) struggle' },
+                    { id: 'nanny', front: 'Kindermädchen (It’s my job to look after young children)', back: 'nanny' },
+                    { id: 'party', front: 'Partei; Gruppe. (I’m a member of the Green [...].)', back: 'party' },
+                    { id: 'fail', front: 'scheitern; (es) nicht schaffen', back: '(to) fail' },
+                    { id: 'racism', front: 'Rassismus (Betonung auf der 1. Silbe)', back: 'racism' },
+                    { id: 'necessarily', front: 'zwangsläufig; (nicht) unbedingt', back: '(not) necessarily' },
+                    { id: 'at_times', front: 'zeitweise, manchmal ▶▶', back: 'at times' }
+                ]
+            },
+            "page145": {
+                title: "Seite 145",
+                cards: [
+                    { id: 'grasp', front: 'verstehen, begreifen. (I find that hard to [...].)', back: '(to) grasp' },
+                    { id: 'township', front: 'Township (Siedlung in Südafrika)', back: 'township' },
+                    { id: 'largely', front: 'größtenteils, überwiegend ▶▶', back: 'mostly' },
+                    { id: 'province', front: 'Provinz, Bundesland', back: 'province' },
+                    { id: 'socialize', front: 'sich treffen (mit), unter Leute gehen', back: '(to) socialize (with)' },
+                    { id: 'wrestle', front: 'ringen (mit), kämpfen (gegen)', back: '(to) wrestle (with)' },
+                    { id: 'similarity', front: 'Ähnlichkeit, Gemeinsamkeit', back: 'similarity' },
+                    { id: 'similarity_ant', front: 'similarity ◀▶', back: 'difference' },
+                    { id: 'revolution', front: 'Revolution (Betonung auf der 3. Silbe)', back: 'revolution' },
+                    { id: 'particular', front: 'bestimmte(r, s), spezielle(r, s)', back: 'particular' },
+                    { id: 'transition', front: 'Übergang. (the [...] from summer to autumn)', back: 'transition' },
+                    { id: 'clothing', front: 'Kleidung (no pl.)', back: 'clothing' },
+                    { id: 'step', front: 'treten (Please [...] closer!)', back: '(to) step' },
+                    { id: 'inner', front: 'innere(r, s). (Develop your [...] strength.)', back: 'inner' },
+                    { id: 'inner_ant', front: 'inner ◀▶', back: 'outer' },
+                    { id: 'twist', front: '(sich) (ver)biegen, (sich) (ver)drehen', back: '(to) twist' },
+                    { id: 'shuffle', front: 'schlurfen; mit den Füßen scharren', back: '(to) shuffle' },
+                    { id: 'stamp', front: '(auf)stampfen', back: '(to) stamp' },
+                    { id: 'rhythmic', front: 'rhythmisch, gleichmäßig', back: 'rhythmic' },
+                    { id: 'variation', front: 'Variante, Variation; Veränderung', back: 'variation' },
+                    { id: 'limit', front: 'Grenze, Begrenzung, Beschränkung', back: 'limit' }
+                ]
+            },
+            "page146": {
+                title: "Seite 146",
+                cards: [
+                    { id: 'resistance', front: 'Widerstand; Resistenz. (Don’t you expect [...].)', back: 'resistance' },
+                    { id: 'shift', front: '(sich) verlagern; (sich) verändern', back: '(to) shift' },
+                    { id: 'impulse', front: 'Impuls (Betonung auf der 1. Silbe)', back: 'impulse' },
+                    { id: 'respond', front: 'reagieren, antworten (auf)', back: '(to) respond (to)' },
+                    { id: 'gumboot', front: 'Gummistiefel', back: 'gumboot' },
+                    { id: 'rural', front: 'ländlich, Land- ▶▶', back: 'rural' },
+                    { id: 'era', front: 'Ära, Epoche', back: 'era' },
+                    { id: 'chain', front: 'anketten, fesseln (mit Ketten)', back: '(to) chain' },
+                    { id: 'slap', front: 'schlagen; knallen; klatschen', back: '(to) slap' },
+                    { id: 'stomp', front: 'stampfen', back: '(to) stomp' },
+                    { id: 'combine', front: 'verbinden, kombinieren', back: '(to) combine' },
+                    { id: 'hardship', front: 'Not, Mühsal, harte Umstände', back: 'hardship' },
+                    { id: 'celebration', front: 'Feier', back: 'celebration' },
+                    { id: 'choreographer', front: 'Choreograf/in (Betonung auf der 3. Silbe)', back: 'choreographer' },
+                    { id: 'hurry', front: 'sich beeilen; eilen. ([...] up!)', back: '(to) hurry' }
+                ]
+            },
+            "page147": {
+                title: "Seite 147",
+                cards: [
+                    { id: 'game', front: 'Wild (Tiere, Fleisch)', back: 'game' },
+                    { id: 'habitat', front: 'Lebensraum (natural [...] of the Tasmanian devil)', back: 'habitat' },
+                    { id: 'rhino', front: 'Nashorn (infml)', back: 'rhino' },
+                    { id: 'leopard', front: 'Leopard (Betonung auf der 1. Silbe)', back: 'leopard' },
+                    { id: 'buffalo', front: 'Büffel; Bison', back: 'buffalo' },
+                    { id: 'variety', front: 'Variante, Sorte, Art', back: 'variety' },
+                    { id: 'informative', front: 'informativ (Betonung auf der 2. Silbe)', back: 'informative' },
+                    { id: 'active', front: 'aktiv', back: 'active' },
+                    { id: 'active_ant', front: 'active ◀▶', back: 'passive' },
+                    { id: 'as_well_as', front: 'sowohl … als auch …', back: 'as well as' },
+                    { id: 'initiative', front: 'Initiative (Betonung auf der 2. Silbe)', back: 'initiative' },
+                    { id: 'rehabilitation', front: 'Rehabilitation', back: 'rehabilitation' },
+                    { id: 'nurse', front: 'pflegen; (aus)kurieren', back: '(to) nurse' },
+                    { id: 'return', front: 'zurückgeben, zurückbringen', back: '(to) return' },
+                    { id: 'in_the_wild', front: 'in der Wildnis / in die Wildnis', back: 'in the wild / to the wild' },
+                    { id: 'rescue', front: 'Rettung', back: 'rescue' },
+                    { id: 'circus', front: 'Zirkus', back: 'circus' },
+                    { id: 'lifelong', front: 'lebenslang', back: 'lifelong' },
+                    { id: 'worldwide', front: 'weltweit ▶▶', back: 'worldwide' },
+                    { id: 'radical', front: 'radikal', back: 'radical' }
+                ]
+            },
+            "page148": {
+                title: "Seite 148",
+                cards: [
+                    { id: 'poach', front: 'wildern, unerlaubt jagen', back: '(to) poach' },
+                    { id: 'controversial', front: 'kontrovers, umstritten', back: 'controversial' },
+                    { id: 'cub', front: '(Löwen-, Bären-)Junges', back: 'cub' },
+                    { id: 'breed', front: 'brüten, Junge bekommen; züchten', back: '(to) breed' },
+                    { id: 'captive', front: 'gefangen, in Gefangenschaft', back: 'captive' },
+                    { id: 'enclose', front: 'etwas (mit etwas) umgeben. (High walls [...] the castle gardens.)', back: '(to) enclose sth. in/with sth.' },
+                    { id: 'instinct', front: 'Instinkt (Betonung auf der 1. Silbe)', back: 'instinct' },
+                    { id: 'profit', front: 'profitieren (von)', back: '(to) profit (from)' },
+                    { id: 'widespread', front: '(weit) verbreitet', back: 'widespread' },
+                    { id: 'petition', front: 'Antrag, Petition (Unterschriftensammlung)', back: 'petition' },
+                    { id: 'practice', front: 'Praktik, Vorgehensweise; Praxis', back: 'practice' },
+                    { id: 'questionable', front: 'fragwürdig', back: 'questionable' },
+                    { id: 'operator', front: 'Betreiber/in (a tour [...])', back: 'operator' },
+                    { id: 'brutal', front: 'brutal (Betonung auf der 1. Silbe)', back: 'brutal' },
+                    { id: 'canned_hunting', front: 'Jagd auf in Gefangenschaft gezogene Tiere', back: 'canned hunting' },
+                    { id: 'complaint', front: 'Beschwerde', back: 'complaint' },
+                    { id: 'air_conditioning', front: 'Klimatisierung, Klimaanlage', back: 'air conditioning' },
+                    { id: 'in_fact', front: 'tatsächlich; eigentlich', back: 'in fact' }
+                ]
+            },
+            "page149": {
+                title: "Seite 149",
+                cards: [
+                    { id: 'little', front: 'wenig (little – less – least)', back: 'little' },
+                    { id: 'circumstances', front: 'Umstände, Verhältnisse (pl.)', back: 'circumstances' },
+                    { id: 'partial', front: 'teilweise, Teil-', back: 'partial' },
+                    { id: 'refund', front: 'Rückzahlung, (Kosten-)Erstattung', back: 'refund' },
+                    { id: 'receipt', front: '(Kauf-)Beleg, Quittung, Kassenzettel', back: 'receipt' },
+                    { id: 'consequence', front: 'Folge, Konsequenz. (As a [...], I did badly.)', back: 'consequence' },
+                    { id: 'demand', front: 'fordern, verlangen', back: '(to) demand' },
+                    { id: 'elaborate', front: 'näher ausführen; ins Detail gehen', back: '(to) elaborate' },
+                    { id: 'prompt', front: 'Stichwort, Vorgabe', back: 'prompt' },
+                    { id: 'formulate', front: 'formulieren', back: '(to) formulate' },
+                    { id: 'comedian', front: 'Komiker/in', back: 'comedian' },
+                    { id: 'political', front: 'politisch', back: 'political' },
+                    { id: 'commentator', front: 'Kommentator/in', back: 'commentator' },
+                    { id: 'host', front: '(Radio-/TV-)Moderator/in; Gastgeber/in', back: 'host' },
+                    { id: 'unique', front: 'einmalig, einzigartig', back: 'unique' }
+                ]
+            },
+            "page150": {
+                title: "Seite 150",
+                cards: [
+                    { id: 'light_skinned', front: '(hell)-häutig', back: '(light)-skinned' },
+                    { id: 'take_right_left', front: '(nach) rechts/links abbiegen ▶▶', back: '(to) turn right/left' },
+                    { id: 'whenever', front: 'wann (auch) immer', back: 'whenever' },
+                    { id: 'yell', front: '(an)schreien, (an)brüllen', back: '(to) yell (at)' },
+                    { id: 'pandemonium', front: 'Tumult, Chaos (no plural)', back: 'pandemonium' },
+                    { id: 'genuine', front: 'echt, wirklich; aufrichtig', back: 'genuine' },
+                    { id: 'clue', front: '(Lösungs-)Hinweis. (I don’t have a [...].)', back: 'clue' },
+                    { id: 'face_to_face', front: 'von Angesicht zu Angesicht', back: 'face to face' },
+                    { id: 'homeland', front: 'Heimat(land)', back: 'homeland' },
+                    { id: 'option', front: 'Wahl(möglichkeit), Option', back: 'option' },
+                    { id: 'leg_up', front: 'jm. einen Vorsprung verschaffen', back: '(to) give sb. a leg up' },
+                    { id: 'comprehension', front: 'Verständnis (English [...])', back: 'comprehension' },
+                    { id: 'equate', front: 'etwas gleichsetzen (mit)', back: '(to) equate sth. (with)' },
+                    { id: 'intelligence', front: 'Intelligenz (Betonung auf der 2. Silbe)', back: 'intelligence' }
+                ]
+            },
+            "page151": {
+                title: "Seite 151",
+                cards: [
+                    { id: 'dock', front: 'Anklagebank (to be in the [...])', back: 'dock' },
+                    { id: 'get_away', front: 'davonkommen (mit)', back: '(to) get away (with) / (to) get off (with)' },
+                    { id: 'fine', front: 'Geldstrafe (You might have to pay a [...].)', back: 'fine' },
+                    { id: 'naughty', front: 'ungezogen, frech, unartig', back: 'naughty' },
+                    { id: 'versed_in', front: 'versiert in etwas sein, gute Kenntnisse haben', back: '(to) be versed in sth.' },
+                    { id: 'pick_up', front: 'sich etwas aneignen (Sprache/Kenntnisse)', back: '(to) pick sth. up' },
+                    { id: 'upside', front: 'auf den Kopf, vor den Kopf (AE, infml)', back: 'upside (the head)' },
+                    { id: 'idiot', front: 'Idiot/in (Betonung auf der 1. Silbe)', back: 'idiot' },
+                    { id: 'passionate', front: 'leidenschaftlich', back: 'passionate' },
+                    { id: 'oppress', front: 'unterdrücken', back: '(to) oppress' },
+                    { id: 'boundary', front: 'Grenze (Music can cross cultural [...])', back: 'boundary' },
+                    { id: 'handle', front: 'mit etwas umgehen, etwas handhaben', back: '(to) handle sth.' },
+                    { id: 'navigate', front: 'navigieren, den Weg finden', back: '(to) navigate' },
+                    { id: 'shopkeeper', front: 'Ladenbesitzer/in', back: 'shopkeeper' },
+                    { id: 'fluent', front: 'fließend (Sprache)', back: 'fluent' },
+                    { id: 'merely', front: 'nur, bloß ▶▶', back: 'only' },
+                    { id: 'brief', front: 'kurz, knapp ▶▶', back: 'short' },
+                    { id: 'confusion', front: 'Verwirrung; Durcheinander', back: 'confusion' }
+                ]
+            },
+            "page152": {
+                title: "Seite 152",
+                cards: [
+                    { id: 'serve', front: 'servieren; Kundschaft bedienen; dienen. (This could [...] as an example.)', back: '(to) serve' },
+                    { id: 'mug', front: 'jn. überfallen (Straßenraub)', back: '(to) mug sb.' },
+                    { id: 'dude', front: 'Mann, Alter (Anrede, infml)', back: 'dude' },
+                    { id: 'incident', front: 'Vorfall, Zwischenfall', back: 'incident' },
+                    { id: 'define', front: 'definieren', back: '(to) define' },
+                    { id: 'chameleon', front: 'Chamäleon (Echsenart)', back: 'chameleon' },
+                    { id: 'perception', front: 'Wahrnehmung', back: 'perception' },
+                    { id: 'barrier', front: 'Barriere', back: 'barrier' },
+                    { id: 'architect', front: 'Architekt/in', back: 'architect' },
+                    { id: 'effort', front: 'Anstrengung, Mühe. (to make an [...])', back: 'effort' },
+                    { id: 'physical', front: 'körperlich, physisch', back: 'physical' },
+                    { id: 'mood', front: 'Stimmung, Laune', back: 'mood' },
+                    { id: 'atmosphere', front: 'Atmosphäre (Betonung auf der 1. Silbe)', back: 'atmosphere' },
+                    { id: 'theme', front: 'Thema', back: 'theme' },
+                    { id: 'misunderstanding', front: 'Missverständnis', back: 'misunderstanding' },
+                    { id: 'clarify', front: 'klären, klarstellen ▶▶', back: '(to) clarify' },
+                    { id: 'rephrase', front: 'umformulieren, anders ausdrücken', back: '(to) rephrase' },
+                    { id: 'in_other_words', front: 'mit anderen Worten', back: 'in other words' },
+                    { id: 'put_sth', front: 'etwas (auf eine bestimmte Art) ausdrücken, formulieren', back: '(to) put sth.' }
+                ]
+            }
+        };
 
+        // #######################################################
+        // 2. SPIELZUSTAND & DOM-ELEMENTE
+        // #######################################################
+        const MAX_ATTEMPTS = 3;
         let currentCardIndex = 0;
-        let attempts = 0;
-        const maxAttempts = 3;
-        let isFlipped = false;
+        let answered = false;
+        let failedAttempts = 0;
+        let flashcards = []; 
+        let totalCards = 0;
 
-        // #######################################################
-        // 2. DOM ELEMENTE
-        // #######################################################
-        const flashcard = document.getElementById('flashcard');
-        const cardFront = document.getElementById('cardFront');
-        const cardBack = document.getElementById('cardBack');
-        const answerInput = document.getElementById('answerInput');
-        const messageBox = document.getElementById('messageBox');
-        const cardCounter = document.getElementById('cardCounter');
-        const prevButton = document.getElementById('prevButton');
+        const menuScreen = document.getElementById('menu-screen');
+        const gameContainer = document.getElementById('gameContainer');
+        const menuGrid = document.getElementById('menuGrid');
+        
+        const flashcardElement = document.getElementById('flashcard');
+        const cardFrontElement = document.getElementById('cardFront');
+        const cardBackElement = document.getElementById('cardBack');
+        const answerInputElement = document.getElementById('answerInput');
+        const checkButton = document.getElementById('checkButton');
         const nextButton = document.getElementById('nextButton');
+        const attemptCountElement = document.getElementById('attemptCount');
+        const feedbackElement = document.getElementById('feedback');
+        const completionMessage = document.getElementById('completionMessage');
+        const progressTextElement = document.getElementById('progressText');
+        const gameTitle = document.getElementById('gameTitle');
 
         // #######################################################
-        // 3. FUNKTIONEN
+        // 3. MENU FUNKTIONEN
         // #######################################################
         
-        function updateCardContent() {
-            const card = flashcardData[currentCardIndex];
+        /** Erzeugt die Auswahl-Buttons aus den Daten */
+        function renderMenu() {
+            menuGrid.innerHTML = ''; 
             
-            // Vorderseite (Deutsch/Begriff)
-            cardFront.innerHTML = `
-                <div class="term-text">${card.term}</div>
-            `;
-            
-            // Rückseite (Englisch/Übersetzung)
-            cardBack.innerHTML = `
-                <div class="solution-text">${card.definition}</div>
-            `;
-            
-            // Status-Anzeige
-            cardCounter.textContent = `Karte ${currentCardIndex + 1} von ${flashcardData.length}`;
-            
-            // Navigations-Buttons
-            prevButton.disabled = currentCardIndex === 0;
-            nextButton.disabled = currentCardIndex === flashcardData.length - 1;
+            const sortedKeys = Object.keys(allCardSets).sort((a, b) => {
+                return parseInt(a.replace('page', '')) - parseInt(b.replace('page', ''));
+            });
 
-            // Zustand zurücksetzen
-            resetCardState();
+            sortedKeys.forEach(key => {
+                const set = allCardSets[key];
+                const button = document.createElement('button');
+                button.classList.add('menu-button');
+                button.textContent = set.title;
+                button.onclick = () => loadGame(key);
+                menuGrid.appendChild(button);
+            });
+            
+            menuScreen.style.display = 'block';
+            gameContainer.style.display = 'none';
+        }
+        
+        /** Lädt das ausgewählte Spiel-Set */
+        function loadGame(setKey) {
+            const set = allCardSets[setKey];
+            
+            flashcards = set.cards;
+            totalCards = flashcards.length;
+            gameTitle.textContent = set.title;
+            
+            menuScreen.style.display = 'none';
+            gameContainer.style.display = 'block';
+            
+            currentCardIndex = 0;
+            shuffleArray(flashcards); 
+            startGame();
         }
 
-        function resetCardState() {
-            flashcard.classList.remove('flipped');
-            isFlipped = false;
-            answerInput.value = '';
-            messageBox.textContent = '';
-            messageBox.classList.remove('success', 'error');
-            attempts = 0;
-            answerInput.disabled = false;
+        /** Geht vom Spiel zurück zur Menü-Auswahl */
+        function backToMenu() {
+            document.querySelector('.input-section').style.display = 'block';
+            document.querySelector('.card-container').style.display = 'block';
+            completionMessage.classList.remove('show');
+            renderMenu();
+        }
+
+        // #######################################################
+        // 4. SPIEL FUNKTIONEN (Kern-Logik mit Versuchszähler)
+        // #######################################################
+
+        function showCard() {
+            if (currentCardIndex >= totalCards) {
+                showCompletion();
+                return;
+            }
+
+            const card = flashcards[currentCardIndex];
+            
+            // UI zurücksetzen
+            flashcardElement.classList.remove('flipped');
+            answerInputElement.value = '';
+            answerInputElement.className = 'answer-input';
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+            failedAttempts = 0; // Zähler zurücksetzen
+            
+            // Kartentexte und UI-Elemente setzen
+            cardFrontElement.textContent = card.front;
+            cardBackElement.textContent = card.back;
+            
+            checkButton.style.display = 'inline-block';
+            nextButton.style.display = 'none';
+            checkButton.disabled = false;
+            answerInputElement.disabled = false;
+            answered = false;
+
+            updateProgress();
+            updateAttemptCount();
+        }
+
+        function updateProgress() {
+            progressTextElement.textContent = `Karte: ${currentCardIndex + 1} / ${totalCards}`;
+        }
+        
+        function updateAttemptCount() {
+            const remaining = MAX_ATTEMPTS - failedAttempts;
+            const color = remaining === 1 ? varColorError : varColorText;
+            
+            if (remaining > 0) {
+                 attemptCountElement.textContent = `Versuche verbleibend: ${remaining}`;
+                 attemptCountElement.style.color = color;
+            } else {
+                 attemptCountElement.textContent = '';
+            }
         }
 
         function flipCard() {
-            if (isFlipped) return; // Wenn bereits umgedreht, nichts tun
-            
-            // NEUE LOGIK: Karte nur umdrehen, wenn 3 Versuche fehlgeschlagen sind
-            if (attempts < maxAttempts) {
-                setMessage('error', `Bitte gib zuerst deine Antwort ein und prüfe sie. Du kannst die Lösung nach ${maxAttempts} Versuchen aufdecken.`);
-                return;
-            }
-            
-            flashcard.classList.add('flipped');
-            isFlipped = true;
-            answerInput.disabled = true;
-            setMessage('success', `Lösung aufgedeckt nach ${attempts} Versuchen.`);
+            flashcardElement.classList.toggle('flipped');
         }
-        
-        function normalizeAnswer(input) {
-            // NUR Leerzeichen am Anfang/Ende entfernen. Groß-/Kleinschreibung WIRD beachtet.
-            return input.trim();
+
+        /** 
+         * Entfernt unnötige Zeichen, Klammern etc. Behält aber Groß-/Kleinschreibung!
+         */
+        function normalizeAnswer(text) {
+            // Nur trimmen und Formatierungen entfernen, Groß-/Kleinschreibung beibehalten
+            return text.replace(/\(to\)/g, '') 
+                       .replace(/[\(\)]/g, '')
+                       .replace(/sth\./g, '')
+                       .replace(/in\./g, '')
+                       .trim();
         }
 
         function checkAnswer() {
-            const userInput = answerInput.value;
-            const correctAnswer = flashcardData[currentCardIndex].definition;
+            if (answered) return;
+
+            const card = flashcards[currentCardIndex];
+            const rawUserAnswer = answerInputElement.value.trim();
             
-            if (isFlipped) return; // Nicht prüfen, wenn Karte bereits umgedreht
-
-            if (userInput.trim() === '') {
-                setMessage('error', 'Bitte gib eine Antwort ein, bevor du prüfst.');
-                return;
-            }
-
-            // Prüfung auf Gleichheit inkl. Groß-/Kleinschreibung
-            if (normalizeAnswer(userInput) === normalizeAnswer(correctAnswer)) {
-                // Korrekte Antwort
-                answerInput.disabled = true;
-                flashcard.classList.add('flipped');
-                isFlipped = true;
-                setMessage('success', 'Korrekt! Gut gemacht.');
+            // Wichtig: Jetzt case-sensitive (nur trim() wird angewandt)
+            const userAnswer = normalizeAnswer(rawUserAnswer);
+            // Korrekte Antworten können durch '/' getrennt sein (z.B. "word / word2")
+            const correctAnswers = card.back.split('/').map(ans => normalizeAnswer(ans));
+            
+            const isCorrect = correctAnswers.some(ans => userAnswer === ans);
+            
+            if (isCorrect) {
+                // FALL 1: KORREKT (inkl. Groß-/Kleinschreibung)
+                answered = true;
+                checkButton.disabled = true;
+                answerInputElement.classList.add('correct');
+                feedbackElement.textContent = '✓ Richtig! Gut gemacht!';
+                feedbackElement.classList.add('correct');
+                
+                // Lösung anzeigen und weiter
+                setTimeout(flipCard, 500);
+                nextButton.style.display = 'inline-block';
+                answerInputElement.disabled = true;
+                attemptCountElement.textContent = '';
+                
             } else {
-                // Falsche Antwort
-                attempts++;
-                if (attempts >= maxAttempts) {
-                    setMessage('error', `Falsch! Maximale Versuche (${maxAttempts}) erreicht. Tippe auf die Karte, um die Lösung zu sehen.`);
+                // FALL 2: FALSCH
+                failedAttempts++;
+                
+                answerInputElement.classList.add('incorrect');
+                
+                if (failedAttempts >= MAX_ATTEMPTS) {
+                    // FALL 2a: Falsch und MAX_ATTEMPTS erreicht. Lösung anzeigen.
+                    answered = true;
+                    checkButton.disabled = true;
+                    feedbackElement.textContent = `✗ Falsch. Maximale Versuche erreicht. Die korrekte Antwort war: "${card.back}"`;
+                    feedbackElement.classList.add('incorrect');
+                    
+                    // Lösung anzeigen und weiter
+                    setTimeout(flipCard, 500);
+                    nextButton.style.display = 'inline-block';
+                    answerInputElement.disabled = true;
+                    attemptCountElement.textContent = '';
+
                 } else {
-                    setMessage('error', `Falsch. Versuch ${attempts} von ${maxAttempts}.`);
+                    // FALL 2b: Falsch, aber weitere Versuche erlaubt
+                    answerInputElement.classList.remove('correct', 'incorrect');
+                    answerInputElement.value = '';
+                    feedbackElement.textContent = `Falsch. Versuch ${failedAttempts} von ${MAX_ATTEMPTS} fehlgeschlagen. Achte auf die Groß-/Kleinschreibung!`;
+                    feedbackElement.classList.remove('correct');
+                    feedbackElement.classList.add('incorrect');
+                    
+                    updateAttemptCount();
                 }
             }
         }
 
-        function setMessage(type, text) {
-            messageBox.textContent = text;
-            messageBox.classList.remove('success', 'error');
-            messageBox.classList.add(type);
+        function nextCard() {
+            currentCardIndex++;
+            showCard();
         }
 
-        function changeCard(direction) {
-            let newIndex = currentCardIndex + direction;
-            if (newIndex >= 0 && newIndex < flashcardData.length) {
-                currentCardIndex = newIndex;
-                updateCardContent();
+        function showCompletion() {
+            document.querySelector('.input-section').style.display = 'none';
+            document.querySelector('.card-container').style.display = 'none';
+            progressTextElement.style.display = 'none';
+            attemptCountElement.style.display = 'none';
+            completionMessage.classList.add('show');
+        }
+
+        function restartGame() {
+            currentCardIndex = 0;
+            shuffleArray(flashcards); 
+            document.querySelector('.input-section').style.display = 'block';
+            document.querySelector('.card-container').style.display = 'block';
+            progressTextElement.style.display = 'block';
+            attemptCountElement.style.display = 'block';
+            completionMessage.classList.remove('show');
+            startGame();
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
             }
         }
+        
+        function startGame() {
+            showCard();
+            // Sicherstellen, dass der Klick-Handler entfernt ist
+            flashcardElement.onclick = null; 
+        }
 
-        // Initialisierung
-        document.addEventListener('DOMContentLoaded', updateCardContent);
+
+        // #######################################################
+        // 5. INITIALISIERUNG
+        // #######################################################
+        
+        window.onload = () => {
+             // CSS-Variablen für die Verwendung in JS (z.B. für attemptCount Farbe)
+             window.varColorError = getComputedStyle(document.documentElement).getPropertyValue('--color-error');
+             window.varColorText = getComputedStyle(document.documentElement).getPropertyValue('--color-text');
+             renderMenu();
+        }
     </script>
 </body>
 </html>
