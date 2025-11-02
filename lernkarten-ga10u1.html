@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
 
     <style>
-        /* Modernes Blaues Styling */
+        /* Modernes Blaues Styling (Unit 1 Theme) */
         :root {
             --color-primary: #1e88e5; /* Helles Blau */
             --color-secondary: #0d47a1; /* Dunkles Blau */
@@ -54,7 +54,7 @@
             font-weight: 600;
             color: var(--color-secondary);
             margin-bottom: 20px;
-            text-align: center; /* Zentrierung */
+            text-align: center; 
         }
         
         /* STARTBILDSCHIRM STYLING */
@@ -121,7 +121,7 @@
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            /* KEIN CURSOR:pointer, um versehentliches Klicken zu verhindern */
+            cursor: default; /* Geändert auf default, wird bei Erfolg auf pointer gesetzt */
         }
 
         .flashcard.flipped {
@@ -295,7 +295,7 @@
 
     <script>
         // #######################################################
-        // 1. LERNKARTEN-DATEN (Mit Lückentext-Cues)
+        // 1. LERNKARTEN-DATEN (Unit 1, aufgeteilt nach Seiten)
         // #######################################################
         const allCardSets = {
             "page143": {
@@ -424,7 +424,7 @@
                     { id: 'cub', front: '(Löwen-, Bären-)Junges', back: 'cub' },
                     { id: 'breed', front: 'brüten, Junge bekommen; züchten', back: '(to) breed' },
                     { id: 'captive', front: 'gefangen, in Gefangenschaft', back: 'captive' },
-                    { id: 'enclose', front: 'etwas (mit etwas) umgeben. (High walls [...] the castle gardens.)', back: '(to) enclose sth. in/with sth.' },
+                    { id: 'enclose', front: 'etwas (mit etwas) umgeben. (High walls [...] enclose the castle gardens.)', back: '(to) enclose sth. in/with sth.' },
                     { id: 'instinct', front: 'Instinkt (Betonung auf der 1. Silbe)', back: 'instinct' },
                     { id: 'profit', front: 'profitieren (von)', back: '(to) profit (from)' },
                     { id: 'widespread', front: '(weit) verbreitet', back: 'widespread' },
@@ -533,7 +533,7 @@
         const MAX_ATTEMPTS = 3;
         let currentCardIndex = 0;
         let answered = false;
-        let failedAttempts = 0;
+        let failedAttempts = 0; 
         let flashcards = []; 
         let totalCards = 0;
 
@@ -547,7 +547,7 @@
         const answerInputElement = document.getElementById('answerInput');
         const checkButton = document.getElementById('checkButton');
         const nextButton = document.getElementById('nextButton');
-        const attemptCountElement = document.getElementById('attemptCount');
+        const attemptCountElement = document.getElementById('attemptCount'); 
         const feedbackElement = document.getElementById('feedback');
         const completionMessage = document.getElementById('completionMessage');
         const progressTextElement = document.getElementById('progressText');
@@ -603,29 +603,25 @@
         }
 
         // #######################################################
-        // 4. SPIEL FUNKTIONEN (Kern-Logik mit Versuchszähler)
+        // 4. SPIEL FUNKTIONEN (Kern-Logik mit Versuchszähler und Flicker-Fix)
         // #######################################################
 
-        function showCard() {
-            if (currentCardIndex >= totalCards) {
-                showCompletion();
-                return;
-            }
-
+        /** Lädt den Inhalt der aktuellen Karte und setzt die UI zurück */
+        function loadCardContent() {
             const card = flashcards[currentCardIndex];
             
-            // UI zurücksetzen
-            flashcardElement.classList.remove('flipped');
+            // UI reset
             answerInputElement.value = '';
             answerInputElement.className = 'answer-input';
             feedbackElement.textContent = '';
             feedbackElement.className = 'feedback';
-            failedAttempts = 0; // Zähler zurücksetzen
+            failedAttempts = 0; 
             
-            // Kartentexte und UI-Elemente setzen
+            // Set content
             cardFrontElement.textContent = card.front;
             cardBackElement.textContent = card.back;
             
+            // Enable controls
             checkButton.style.display = 'inline-block';
             nextButton.style.display = 'none';
             checkButton.disabled = false;
@@ -634,6 +630,26 @@
 
             updateProgress();
             updateAttemptCount();
+            flashcardElement.style.cursor = 'default'; 
+        }
+
+        function showCard() {
+            if (currentCardIndex >= totalCards) {
+                showCompletion();
+                return;
+            }
+
+            // NEUE LOGIK FÜR FLICKER-FIX
+            const isFlipped = flashcardElement.classList.contains('flipped');
+            flashcardElement.classList.remove('flipped'); // Startet die 0.6s Animation
+
+            if (isFlipped) {
+                // Wenn die Karte umgedreht war, warten wir 600ms, bis die Rotation beendet ist, bevor wir den neuen Inhalt laden
+                setTimeout(loadCardContent, 600);
+            } else {
+                // Wenn es die erste Karte ist oder die Karte nicht umgedreht war, sofort laden
+                loadCardContent();
+            }
         }
 
         function updateProgress() {
@@ -642,25 +658,31 @@
         
         function updateAttemptCount() {
             const remaining = MAX_ATTEMPTS - failedAttempts;
-            const color = remaining === 1 ? varColorError : varColorText;
-            
+            // Holt die Error-Farbe aus dem CSS
+            const varColorError = getComputedStyle(document.documentElement).getPropertyValue('--color-error');
+            const varColorText = getComputedStyle(document.documentElement).getPropertyValue('--color-text');
+
             if (remaining > 0) {
                  attemptCountElement.textContent = `Versuche verbleibend: ${remaining}`;
-                 attemptCountElement.style.color = color;
+                 attemptCountElement.style.color = remaining === 1 ? varColorError : varColorText;
             } else {
                  attemptCountElement.textContent = '';
             }
         }
 
         function flipCard() {
-            flashcardElement.classList.toggle('flipped');
+            // Die Karte nur flippen, wenn die Antwort feststeht (nach checkAnswer)
+            if (answered) {
+                flashcardElement.classList.toggle('flipped');
+            }
         }
 
         /** 
-         * Entfernt unnötige Zeichen, Klammern etc. Behält aber Groß-/Kleinschreibung!
+         * Entfernt unnötige Zeichen, Klammern etc., behält aber Groß-/Kleinschreibung bei!
          */
         function normalizeAnswer(text) {
-            // Nur trimmen und Formatierungen entfernen, Groß-/Kleinschreibung beibehalten
+            // Ignoriert '(to)', Klammern und Endungen wie 'sth.', behält aber Casing bei
+            // WICHTIG: .toLowerCase() wurde entfernt, um Case-Sensitivity zu gewährleisten.
             return text.replace(/\(to\)/g, '') 
                        .replace(/[\(\)]/g, '')
                        .replace(/sth\./g, '')
@@ -674,22 +696,23 @@
             const card = flashcards[currentCardIndex];
             const rawUserAnswer = answerInputElement.value.trim();
             
-            // Wichtig: Jetzt case-sensitive (nur trim() wird angewandt)
+            // Die Prüfung ist jetzt case-sensitive
             const userAnswer = normalizeAnswer(rawUserAnswer);
-            // Korrekte Antworten können durch '/' getrennt sein (z.B. "word / word2")
-            const correctAnswers = card.back.split('/').map(ans => normalizeAnswer(ans));
+            // Korrekte Antworten werden ebenfalls nur bereinigt (ohne .toLowerCase())
+            const correctAnswers = card.back.split('/').map(ans => normalizeAnswer(ans)); 
             
             const isCorrect = correctAnswers.some(ans => userAnswer === ans);
             
             if (isCorrect) {
-                // FALL 1: KORREKT (inkl. Groß-/Kleinschreibung)
+                // FALL 1: KORREKT
                 answered = true;
                 checkButton.disabled = true;
                 answerInputElement.classList.add('correct');
                 feedbackElement.textContent = '✓ Richtig! Gut gemacht!';
                 feedbackElement.classList.add('correct');
                 
-                // Lösung anzeigen und weiter
+                // Karte flippen & weiter
+                flashcardElement.style.cursor = 'pointer'; 
                 setTimeout(flipCard, 500);
                 nextButton.style.display = 'inline-block';
                 answerInputElement.disabled = true;
@@ -702,13 +725,14 @@
                 answerInputElement.classList.add('incorrect');
                 
                 if (failedAttempts >= MAX_ATTEMPTS) {
-                    // FALL 2a: Falsch und MAX_ATTEMPTS erreicht. Lösung anzeigen.
+                    // FALL 2a: Falsch und MAX_ATTEMPTS erreicht (Aufgeben)
                     answered = true;
                     checkButton.disabled = true;
                     feedbackElement.textContent = `✗ Falsch. Maximale Versuche erreicht. Die korrekte Antwort war: "${card.back}"`;
                     feedbackElement.classList.add('incorrect');
                     
-                    // Lösung anzeigen und weiter
+                    // Karte flippen & weiter
+                    flashcardElement.style.cursor = 'pointer';
                     setTimeout(flipCard, 500);
                     nextButton.style.display = 'inline-block';
                     answerInputElement.disabled = true;
@@ -716,8 +740,11 @@
 
                 } else {
                     // FALL 2b: Falsch, aber weitere Versuche erlaubt
-                    answerInputElement.classList.remove('correct', 'incorrect');
-                    answerInputElement.value = '';
+                    setTimeout(() => {
+                        answerInputElement.classList.remove('incorrect');
+                        answerInputElement.value = ''; 
+                    }, 500);
+                    
                     feedbackElement.textContent = `Falsch. Versuch ${failedAttempts} von ${MAX_ATTEMPTS} fehlgeschlagen. Achte auf die Groß-/Kleinschreibung!`;
                     feedbackElement.classList.remove('correct');
                     feedbackElement.classList.add('incorrect');
@@ -760,8 +787,19 @@
         
         function startGame() {
             showCard();
-            // Sicherstellen, dass der Klick-Handler entfernt ist
-            flashcardElement.onclick = null; 
+            // Stellt sicher, dass die Klick-Logik nur bei "answered = true" funktioniert
+            flashcardElement.removeEventListener('click', flipCard);
+            flashcardElement.addEventListener('click', flipCard);
+            
+            // Fängt Enter-Taste ab
+            answerInputElement.removeEventListener('keypress', handleKeypress);
+            answerInputElement.addEventListener('keypress', handleKeypress);
+        }
+        
+        function handleKeypress(e) {
+             if (e.key === 'Enter' && !checkButton.disabled && !answerInputElement.disabled) {
+                checkAnswer();
+            }
         }
 
 
@@ -770,9 +808,6 @@
         // #######################################################
         
         window.onload = () => {
-             // CSS-Variablen für die Verwendung in JS (z.B. für attemptCount Farbe)
-             window.varColorError = getComputedStyle(document.documentElement).getPropertyValue('--color-error');
-             window.varColorText = getComputedStyle(document.documentElement).getPropertyValue('--color-text');
              renderMenu();
         }
     </script>
