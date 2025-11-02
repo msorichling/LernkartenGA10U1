@@ -11,16 +11,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
 
     <style>
-        /* Modernes Rot/Koralle Styling */
+        /* Dezentes Magenta-Styling */
         :root {
-            --color-primary: #FF6B7C; /* Koralle-Pink */
-            --color-secondary: #C43D53; /* Dunkles Rot */
-            --color-background: #ffebee; /* Sehr helles Rot */
+            --color-primary: #ec407a; /* Helles Magenta/Pink */
+            --color-secondary: #ad1457; /* Dunkles Weinrot */
+            --color-background: #fce4ec; /* Sehr helles Rosa */
             --color-text: #263238; /* Dunkelgrau */
             --color-success: #43a047; /* Grün für Korrekt */
             --color-error: #e53935; /* Rot für Fehler */
-            --color-card-front: #ff8a80; /* Kartenfarbe Vorderseite */
-            --color-card-back: #e53935; /* Kartenfarbe Rückseite */
+            --color-card-front: #ff80ab; /* Kartenfarbe Vorderseite */
+            --color-card-back: #e91e63; /* Kartenfarbe Rückseite */
             --shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
         
@@ -54,7 +54,7 @@
             font-weight: 600;
             color: var(--color-secondary);
             margin-bottom: 20px;
-            text-align: center;
+            text-align: center; 
         }
         
         /* STARTBILDSCHIRM STYLING */
@@ -95,7 +95,7 @@
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
         }
         
-        /* Fortschrittsanzeige */
+        /* Fortschritts- und Versuchsanzeige */
         #progressText {
             font-weight: 500;
             color: var(--color-text);
@@ -121,6 +121,7 @@
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            cursor: default; 
         }
 
         .flashcard.flipped {
@@ -142,16 +143,17 @@
             padding: 25px;
             box-sizing: border-box;
             color: white;
+            line-height: 1.4;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
         /* Kartenfarben */
         .card-front {
-            background: linear-gradient(135deg, var(--color-card-front), #e53935);
+            background: linear-gradient(135deg, var(--color-card-front), #f06292);
         }
 
         .card-back {
-            background: linear-gradient(135deg, var(--color-card-back), #b71c1c);
+            background: linear-gradient(135deg, var(--color-card-back), #c2185b);
             transform: rotateY(180deg);
         }
         
@@ -233,7 +235,7 @@
         
         /* Abschlussmeldung */
         .completion-message {
-            background: linear-gradient(45deg, #ffb300, #ff8f00); 
+            background: linear-gradient(45deg, #ff80ab, #e91e63); 
             color: white;
             padding: 25px;
             border-radius: 15px;
@@ -293,234 +295,241 @@
 
     <script>
         // #######################################################
-        // 1. LERNKARTEN-DATEN (Identisch mit U1, Platzhalter für U4)
+        // 1. LERNKARTEN-DATEN (Unit 4, aufgeteilt nach Seiten)
         // #######################################################
         const allCardSets = {
-            "page143": {
-                title: "Seite 143",
+            "page174": {
+                title: "Seite 174",
                 cards: [
-                    { id: 'diverse', front: 'unterschiedlich, [...]', back: 'diverse' },
-                    { id: 'society', front: 'Gesellschaft', back: 'society' },
-                    { id: 'apartheid', front: 'Apartheid (früheres System der Trennung)', back: 'apartheid' },
-                    { id: 'relation', front: 'Beziehung, Verhältnis; Bezug', back: 'relation' },
-                    { id: 'pros_cons', front: 'Was sind the [...] and cons? (Für und Wider)', back: 'pros and cons' },
-                    { id: 'reserve', front: 'Schutzgebiet (an area which is protected for wildlife)', back: 'reserve' },
-                    { id: 'facet', front: 'Facette', back: 'facet' },
-                    { id: 'rainbow', front: 'Regenbogen', back: 'rainbow' },
-                    { id: 'lingua_franca', front: 'English is a [...] in many parts of the world.', back: 'lingua franca' },
-                    { id: 'non', front: 'Nicht- (non-white, non-stop flight)', back: 'non-' },
-                    { id: 'weigh_heavily', front: 'schwer lasten auf jm. (to [...] heavily on sb.)', back: 'weigh heavily on sb.' },
-                    { id: 'optimistic', front: 'optimistisch', back: 'optimistic' },
-                    { id: 'pessimistic', front: 'optimistisch ◀▶', back: 'pessimistic' },
-                    { id: 'optimism', front: 'Optimismus', back: 'optimism' },
-                    { id: 'pessimism', front: 'Optimismus ◀▶', back: 'pessimism' },
-                    { id: 'beyond', front: 'jenseits, außerhalb, weiter als', back: 'beyond' }
+                    { id: 'examine', front: 'untersuchen', back: '(to) examine' },
+                    { id: 'individual', front: 'Einzelne/r, Individuum; Person', back: 'individual' },
+                    { id: 'participate', front: 'teilnehmen (an), sich beteiligen (an) ▶▶', back: '(to) take part (in)' },
+                    { id: 'donation', front: 'Spende (to make a [...])', back: 'donation' },
+                    { id: 'cycle', front: 'Rad fahren ▶▶', back: '(to) ride a/your bike' },
+                    { id: 'consumerism', front: 'Konsumismus, konsumorientiertes Verhalten', back: 'consumerism' },
+                    { id: 'extinction', front: 'Ausrottung, Aussterben', back: 'extinction' },
+                    { id: 'activism', front: 'Aktivismus (Betonung auf der 1. Silbe)', back: 'activism' },
+                    { id: 'front_line', front: 'Front (militärisch) (in/on the [...])', back: 'front line' },
+                    { id: 'elderly', front: 'ältere(r, s) (politer word for "old")', back: 'elderly' },
+                    { id: 'marginalize', front: 'ins Abseits drängen, an den Rand drängen', back: '(to) marginalize' }
                 ]
             },
-            "page144": {
-                title: "Seite 144",
+            "page175": {
+                title: "Seite 175",
                 cards: [
-                    { id: 'agree', front: 'etwas vereinbaren, sich einigen. (We [...] on this text.)', back: '(to) agree (on) sth.' },
-                    { id: 'people_of_colour', front: 'nicht-weiße Menschen', back: 'people of colour' },
-                    { id: 'phenomenon', front: 'Phänomen, Erscheinung (pl. phenomena)', back: 'phenomenon' },
-                    { id: 'fix', front: 'etwas in Ordnung bringen; reparieren. (I can [...] it.)', back: '(to) fix sth.' },
-                    { id: 'wrong', front: 'Unrecht. (Teach your children the difference between right and [...])', back: 'wrong' },
-                    { id: 'wrong_ant', front: 'wrong ◀▶', back: 'right' },
-                    { id: 'reform', front: 'Reform', back: 'reform' },
-                    { id: 'youth', front: 'Jugend; Jugendlicher', back: 'youth' },
-                    { id: 'growth', front: 'Wachstum. (Too much water will stop the plant’s [...].)', back: 'growth' },
-                    { id: 'educational', front: 'Erziehungs-, Bildungs- (relating to education)', back: 'educational' },
-                    { id: 'corruption', front: 'Korruption, Bestechlichkeit', back: 'corruption' },
-                    { id: 'entrepreneur', front: 'Unternehmer/in ▶▶', back: 'businessman/businesswoman' },
-                    { id: 'qualification', front: '(Schul-)Abschluss, Qualifikation', back: 'qualification' },
-                    { id: 'diploma', front: 'Diplom, Abschlusszeugnis', back: 'diploma' },
-                    { id: 'struggle', front: 'kämpfen, sich abmühen. (I am [...] to understand.)', back: '(to) struggle' },
-                    { id: 'nanny', front: 'Kindermädchen (It’s my job to look after young children)', back: 'nanny' },
-                    { id: 'party', front: 'Partei; Gruppe. (I’m a member of the Green [...].)', back: 'party' },
-                    { id: 'fail', front: 'scheitern; (es) nicht schaffen', back: '(to) fail' },
-                    { id: 'racism', front: 'Rassismus (Betonung auf der 1. Silbe)', back: 'racism' },
-                    { id: 'necessarily', front: 'zwangsläufig; (nicht) unbedingt', back: '(not) necessarily' },
-                    { id: 'at_times', front: 'zeitweise, manchmal ▶▶', back: 'at times' }
+                    { id: 'witness', front: 'etwas (mit)erleben, Zeuge/Zeugin werden von etwas', back: '(to) witness sth.' },
+                    { id: 'first_hand', front: 'aus erster Hand (first-hand experience)', back: 'first-hand' },
+                    { id: 'damage', front: 'Schaden, Schäden (an) (no pl)', back: 'damage (to)' },
+                    { id: 'intense', front: 'intensiv, enorm', back: 'intense' },
+                    { id: 'landslide', front: 'Erdrutsch', back: 'landslide' },
+                    { id: 'end_up', front: '(schließlich) enden, landen. (You might [...] in prison.)', back: '(to) end up' },
+                    { id: 'painful', front: 'schmerzhaft ▶▶', back: 'causing pain' },
+                    { id: 'impact', front: 'Einfluss, Auswirkung. (What [...] does this have?)', back: 'impact' },
+                    { id: 'major', front: 'groß, bedeutend; Haupt- ▶▶', back: 'very large; very important' },
+                    { id: 'frequent', front: 'häufig', back: 'frequent' },
+                    { id: 'no_longer', front: 'nicht mehr ▶▶', back: 'not ... any more' },
+                    { id: 'habitable', front: 'bewohnbar', back: 'habitable' },
+                    { id: 'habitable_ant', front: 'habitable ◀▶', back: 'uninhabitable' },
+                    { id: 'crisis', front: 'Krise (pl crises)', back: 'crisis' },
+                    { id: 'unite', front: 'jn./etwas vereinigen, verbinden (mit)', back: '(to) unite sb./sth. (with)' },
+                    { id: 'harmony', front: 'Harmonie, Einklang (Betonung auf der 1. Silbe)', back: 'harmony' },
+                    { id: 'toxic', front: 'toxisch, giftig (toxic waste)', back: 'toxic' }
                 ]
             },
-            "page145": {
-                title: "Seite 145",
+            "page176": {
+                title: "Seite 176",
                 cards: [
-                    { id: 'grasp', front: 'verstehen, begreifen. (I find that hard to [...].)', back: '(to) grasp' },
-                    { id: 'township', front: 'Township (Siedlung in Südafrika)', back: 'township' },
-                    { id: 'largely', front: 'größtenteils, überwiegend ▶▶', back: 'mostly' },
-                    { id: 'province', front: 'Provinz, Bundesland', back: 'province' },
-                    { id: 'socialize', front: 'sich treffen (mit), unter Leute gehen', back: '(to) socialize (with)' },
-                    { id: 'wrestle', front: 'ringen (mit), kämpfen (gegen)', back: '(to) wrestle (with)' },
-                    { id: 'similarity', front: 'Ähnlichkeit, Gemeinsamkeit', back: 'similarity' },
-                    { id: 'similarity_ant', front: 'similarity ◀▶', back: 'difference' },
-                    { id: 'revolution', front: 'Revolution (Betonung auf der 3. Silbe)', back: 'revolution' },
-                    { id: 'particular', front: 'bestimmte(r, s), spezielle(r, s)', back: 'particular' },
-                    { id: 'transition', front: 'Übergang. (the [...] from summer to autumn)', back: 'transition' },
-                    { id: 'clothing', front: 'Kleidung (no pl.)', back: 'clothing' },
-                    { id: 'step', front: 'treten (Please [...] closer!)', back: '(to) step' },
-                    { id: 'inner', front: 'innere(r, s). (Develop your [...] strength.)', back: 'inner' },
-                    { id: 'inner_ant', front: 'inner ◀▶', back: 'outer' },
-                    { id: 'twist', front: '(sich) (ver)biegen, (sich) (ver)drehen', back: '(to) twist' },
-                    { id: 'shuffle', front: 'schlurfen; mit den Füßen scharren', back: '(to) shuffle' },
-                    { id: 'stamp', front: '(auf)stampfen', back: '(to) stamp' },
-                    { id: 'rhythmic', front: 'rhythmisch, gleichmäßig', back: 'rhythmic' },
-                    { id: 'variation', front: 'Variante, Variation; Veränderung', back: 'variation' },
-                    { id: 'limit', front: 'Grenze, Begrenzung, Beschränkung', back: 'limit' }
+                    { id: 'dump', front: '(Müll-)Abladeplatz, Deponie', back: 'dump' },
+                    { id: 'inseparable', front: 'untrennbar (miteinander verbunden)', back: 'inseparable' },
+                    { id: 'counterpart', front: 'Pendant, Gegenstück; Gegenüber', back: 'counterpart' },
+                    { id: 'unjust', front: 'ungerecht', back: 'unjust' },
+                    { id: 'unjust_ant', front: 'unjust ◀▶', back: 'just' },
+                    { id: 'target', front: 'auf jn. zielen (jn. als Zielgruppe haben/wählen)', back: '(to) target sb.' },
+                    { id: 'risk', front: 'Risiko (I wouldn’t take that [...])', back: 'risk' },
+                    { id: 'solidarity', front: 'Solidarität', back: 'solidarity' },
+                    { id: 'related', front: 'zugehörig, verbunden, verwandt (mit)', back: 'related (to)' },
+                    { id: 'floodwater', front: 'Flutwasser (pl floodwaters)', back: 'floodwater' },
+                    { id: 'tackle', front: '(Problem) angehen, in Angriff nehmen; bewältigen', back: '(to) tackle' },
+                    { id: 'exaggerate', front: 'übertreiben', back: '(to) exaggerate' }
                 ]
             },
-            "page146": {
-                title: "Seite 146",
+            "page177": {
+                title: "Seite 177",
                 cards: [
-                    { id: 'resistance', front: 'Widerstand; Resistenz. (Don’t you expect [...].)', back: 'resistance' },
-                    { id: 'shift', front: '(sich) verlagern; (sich) verändern', back: '(to) shift' },
-                    { id: 'impulse', front: 'Impuls (Betonung auf der 1. Silbe)', back: 'impulse' },
-                    { id: 'respond', front: 'reagieren, antworten (auf)', back: '(to) respond (to)' },
-                    { id: 'gumboot', front: 'Gummistiefel', back: 'gumboot' },
-                    { id: 'rural', front: 'ländlich, Land- ▶▶', back: 'rural' },
-                    { id: 'era', front: 'Ära, Epoche', back: 'era' },
-                    { id: 'chain', front: 'anketten, fesseln (mit Ketten)', back: '(to) chain' },
-                    { id: 'slap', front: 'schlagen; knallen; klatschen', back: '(to) slap' },
-                    { id: 'stomp', front: 'stampfen', back: '(to) stomp' },
-                    { id: 'combine', front: 'verbinden, kombinieren', back: '(to) combine' },
-                    { id: 'hardship', front: 'Not, Mühsal, harte Umstände', back: 'hardship' },
-                    { id: 'celebration', front: 'Feier', back: 'celebration' },
-                    { id: 'choreographer', front: 'Choreograf/in (Betonung auf der 3. Silbe)', back: 'choreographer' },
-                    { id: 'hurry', front: 'sich beeilen; eilen. ([...] up!)', back: '(to) hurry' }
+                    { id: 'committee', front: 'Ausschuss, Kommission, Komitee', back: 'committee' },
+                    { id: 'intercultural', front: 'interkulturell', back: 'intercultural' },
+                    { id: 'cutlery', front: 'Besteck', back: 'cutlery' },
+                    { id: 'container', front: 'Behälter; Container', back: 'container' },
+                    { id: 'capable', front: 'fähig (zu), imstande (zu)', back: 'capable (of)' },
+                    { id: 'adapt', front: 'adaptieren, (sich) anpassen', back: '(to) adapt' },
+                    { id: 'innovation', front: 'Innovation, Neuerung', back: 'innovation' },
+                    { id: 'biodegradable', front: 'biologisch abbaubar', back: 'biodegradable' },
+                    { id: 'reusable', front: 'wiederverwendbar', back: 'reusable' },
+                    { id: 'bring_up', front: 'etwas erwähnen, zur Sprache bringen', back: '(to) bring sth. up' },
+                    { id: 'commitment', front: 'Bekenntnis (zu); Engagement, Einsatz (für)', back: 'commitment (to sb./sth.)' },
+                    { id: 'average', front: 'durchschnittlich; Durchschnitt', back: 'average' },
+                    { id: 'enable', front: 'es jm. ermöglichen, etwas zu tun', back: '(to) enable sb. to do sth.' },
+                    { id: 'general_assembly', front: 'Vollversammlung, Generalversammlung', back: 'general assembly' },
+                    { id: 'approve', front: 'genehmigen, anerkennen', back: '(to) approve' },
+                    { id: 'till', front: 'bis ▶▶', back: 'until' }
                 ]
             },
-            "page147": {
-                title: "Seite 147",
+            "page178": {
+                title: "Seite 178",
                 cards: [
-                    { id: 'game', front: 'Wild (Tiere, Fleisch)', back: 'game' },
-                    { id: 'habitat', front: 'Lebensraum (natural [...] of the Tasmanian devil)', back: 'habitat' },
-                    { id: 'rhino', front: 'Nashorn (infml)', back: 'rhino' },
-                    { id: 'leopard', front: 'Leopard (Betonung auf der 1. Silbe)', back: 'leopard' },
-                    { id: 'buffalo', front: 'Büffel; Bison', back: 'buffalo' },
-                    { id: 'variety', front: 'Variante, Sorte, Art', back: 'variety' },
-                    { id: 'informative', front: 'informativ (Betonung auf der 2. Silbe)', back: 'informative' },
-                    { id: 'active', front: 'aktiv', back: 'active' },
-                    { id: 'active_ant', front: 'active ◀▶', back: 'passive' },
-                    { id: 'as_well_as', front: 'sowohl … als auch …', back: 'as well as' },
-                    { id: 'initiative', front: 'Initiative (Betonung auf der 2. Silbe)', back: 'initiative' },
-                    { id: 'rehabilitation', front: 'Rehabilitation', back: 'rehabilitation' },
-                    { id: 'nurse', front: 'pflegen; (aus)kurieren', back: '(to) nurse' },
-                    { id: 'return', front: 'zurückgeben, zurückbringen', back: '(to) return' },
-                    { id: 'in_the_wild', front: 'in der Wildnis / in die Wildnis', back: 'in the wild / to the wild' },
-                    { id: 'rescue', front: 'Rettung', back: 'rescue' },
-                    { id: 'circus', front: 'Zirkus', back: 'circus' },
-                    { id: 'lifelong', front: 'lebenslang', back: 'lifelong' },
-                    { id: 'worldwide', front: 'weltweit ▶▶', back: 'worldwide' },
-                    { id: 'radical', front: 'radikal', back: 'radical' }
+                    { id: 'intention', front: 'Absicht, Vorsatz', back: 'intention' },
+                    { id: 'measure', front: 'Maß(nahme) (to take [...])', back: 'measure' },
+                    { id: 'transform', front: '(sich) verwandeln; umwandeln', back: '(to) transform' },
+                    { id: 'planet', front: 'Planet (Betonung auf der 1. Silbe)', back: 'planet' },
+                    { id: 'amount', front: 'Menge; Betrag (a large [...] of money)', back: 'amount' },
+                    { id: 'carbon_dioxide', front: 'Kohlendioxid (CO2)', back: 'carbon dioxide (CO2)' },
+                    { id: 'open_minded', front: 'offen, aufgeschlossen (gegenüber)', back: 'open-minded (about)' },
+                    { id: 'open_minded_ant', front: 'open-minded ◀▶', back: 'narrow-minded' },
+                    { id: 'leadership', front: 'Führung', back: 'leadership' },
+                    { id: 'comparison', front: 'Vergleich; Steigerung', back: 'comparison' },
+                    { id: 'eco_friendly', front: 'umweltfreundlich ▶▶', back: 'environment-friendly' },
+                    { id: 'presenter', front: 'Moderator/in; Referent/in', back: 'presenter' },
+                    { id: 'garment', front: 'Kleidungsstück', back: 'garment' },
+                    { id: 'uncover', front: 'aufdecken; freilegen', back: '(to) uncover' }
                 ]
             },
-            "page148": {
-                title: "Seite 148",
+            "page179": {
+                title: "Seite 179",
                 cards: [
-                    { id: 'poach', front: 'wildern, unerlaubt jagen', back: '(to) poach' },
-                    { id: 'controversial', front: 'kontrovers, umstritten', back: 'controversial' },
-                    { id: 'cub', front: '(Löwen-, Bären-)Junges', back: 'cub' },
-                    { id: 'breed', front: 'brüten, Junge bekommen; züchten', back: '(to) breed' },
-                    { id: 'captive', front: 'gefangen, in Gefangenschaft', back: 'captive' },
-                    { id: 'enclose', front: 'etwas (mit etwas) umgeben. (High walls [...] the castle gardens.)', back: '(to) enclose sth. in/with sth.' },
-                    { id: 'instinct', front: 'Instinkt (Betonung auf der 1. Silbe)', back: 'instinct' },
-                    { id: 'profit', front: 'profitieren (von)', back: '(to) profit (from)' },
-                    { id: 'widespread', front: '(weit) verbreitet', back: 'widespread' },
-                    { id: 'petition', front: 'Antrag, Petition (Unterschriftensammlung)', back: 'petition' },
-                    { id: 'practice', front: 'Praktik, Vorgehensweise; Praxis', back: 'practice' },
-                    { id: 'questionable', front: 'fragwürdig', back: 'questionable' },
-                    { id: 'operator', front: 'Betreiber/in (a tour [...])', back: 'operator' },
-                    { id: 'brutal', front: 'brutal (Betonung auf der 1. Silbe)', back: 'brutal' },
-                    { id: 'canned_hunting', front: 'Jagd auf in Gefangenschaft gezogene Tiere', back: 'canned hunting' },
-                    { id: 'complaint', front: 'Beschwerde', back: 'complaint' },
-                    { id: 'air_conditioning', front: 'Klimatisierung, Klimaanlage', back: 'air conditioning' },
-                    { id: 'in_fact', front: 'tatsächlich; eigentlich', back: 'in fact' }
+                    { id: 'manufacture', front: 'herstellen, produzieren, fertigen', back: '(to) manufacture' },
+                    { id: 'investigate', front: 'untersuchen; ermitteln', back: '(to) investigate' },
+                    { id: 'letter_to_the_editor', front: 'Leserbrief', back: 'letter to the editor' },
+                    { id: 'praise', front: 'loben, rühmen', back: '(to) praise' },
+                    { id: 'expose', front: 'aufdecken, entlarven; freilegen', back: '(to) expose' },
+                    { id: 'criminal', front: 'kriminell (adjective)', back: 'criminal' },
+                    { id: 'balance', front: 'ausgleichen, ins Gleichgewicht bringen', back: '(to) balance' },
+                    { id: 'journalism', front: 'Journalismus (Betonung auf der 1. Silbe)', back: 'journalism' },
+                    { id: 'evidence', front: 'Nachweis(e), Beweis(e) (no pl)', back: 'evidence' },
+                    { id: 'whats_more', front: 'Darüber hinaus …, Außerdem …', back: 'What’s more, …' },
+                    { id: 'representative', front: 'Repräsentant/in, Vertreter/in', back: 'representative' },
+                    { id: 'rather', front: 'ziemlich ▶▶', back: 'quite' },
+                    { id: 'spot_on', front: 'haargenau richtig', back: 'spot on' },
+                    { id: 'punish', front: 'bestrafen', back: '(to) punish' },
+                    { id: 'once_more', front: 'noch einmal, wieder einmal ▶▶', back: 'one more time' },
+                    { id: 'colony', front: 'Kolonie (Betonung auf der 1. Silbe)', back: 'colony' },
+                    { id: 'preserve', front: 'bewahren, erhalten', back: '(to) preserve' }
                 ]
             },
-            "page149": {
-                title: "Seite 149",
+            "page180": {
+                title: "Seite 180",
                 cards: [
-                    { id: 'little', front: 'wenig (little – less – least)', back: 'little' },
-                    { id: 'circumstances', front: 'Umstände, Verhältnisse (pl.)', back: 'circumstances' },
-                    { id: 'partial', front: 'teilweise, Teil-', back: 'partial' },
-                    { id: 'refund', front: 'Rückzahlung, (Kosten-)Erstattung', back: 'refund' },
-                    { id: 'receipt', front: '(Kauf-)Beleg, Quittung, Kassenzettel', back: 'receipt' },
-                    { id: 'consequence', front: 'Folge, Konsequenz. (As a [...], I did badly.)', back: 'consequence' },
-                    { id: 'demand', front: 'fordern, verlangen', back: '(to) demand' },
-                    { id: 'elaborate', front: 'näher ausführen; ins Detail gehen', back: '(to) elaborate' },
-                    { id: 'prompt', front: 'Stichwort, Vorgabe', back: 'prompt' },
-                    { id: 'formulate', front: 'formulieren', back: '(to) formulate' },
-                    { id: 'comedian', front: 'Komiker/in', back: 'comedian' },
-                    { id: 'political', front: 'politisch', back: 'political' },
-                    { id: 'commentator', front: 'Kommentator/in', back: 'commentator' },
-                    { id: 'host', front: '(Radio-/TV-)Moderator/in; Gastgeber/in', back: 'host' },
-                    { id: 'unique', front: 'einmalig, einzigartig', back: 'unique' }
+                    { id: 'cryogenic', front: 'Tieftemperatur-', back: 'cryogenic' },
+                    { id: 'cryonics', front: 'Kryotechnik (Kryokonservierung)', back: 'cryonics' },
+                    { id: 'laboratory', front: 'Labor (infml: lab)', back: 'laboratory' },
+                    { id: 'technician', front: 'Techniker/in', back: 'technician' },
+                    { id: 'type_in', front: '(ein)tippen. (Please [...] your name.)', back: '(to) type (in)' },
+                    { id: 'approach', front: 'sich nähern, näher kommen', back: '(to) approach' },
+                    { id: 'seal_up', front: 'etwas mit etwas abdichten, versiegeln', back: '(to) seal sth. (up) with sth.' },
+                    { id: 'tube', front: 'Schlauch; Tube; Rohr', back: 'tube' },
+                    { id: 'wire', front: 'Draht', back: 'wire' },
+                    { id: 'cram', front: '(hinein)stopfen, (sich) hineindrängen', back: '(to) cram' },
+                    { id: 'liquid', front: 'Flüssigkeit', back: 'liquid' },
+                    { id: 'vein', front: 'Vene', back: 'vein' },
+                    { id: 'grunt', front: 'Grunzen, Grunzlaut; Ächzen', back: 'grunt' },
+                    { id: 'squeeze', front: '(zusammen)drücken; (sich) zwängen', back: '(to) squeeze' },
+                    { id: 'stroke', front: 'streicheln', back: '(to) stroke' },
+                    { id: 'anything_but', front: 'alles andere als … (Houses are [...] cheap.)', back: 'anything but …' },
+                    { id: 'crook', front: 'Armbeuge, Ellenbeuge (the [...] of your elbow)', back: 'crook' }
                 ]
             },
-            "page150": {
-                title: "Seite 150",
+            "page181": {
+                title: "Seite 181",
                 cards: [
-                    { id: 'light_skinned', front: '(hell)-häutig', back: '(light)-skinned' },
-                    { id: 'take_right_left', front: '(nach) rechts/links abbiegen ▶▶', back: '(to) turn right/left' },
-                    { id: 'whenever', front: 'wann (auch) immer', back: 'whenever' },
-                    { id: 'yell', front: '(an)schreien, (an)brüllen', back: '(to) yell (at)' },
-                    { id: 'pandemonium', front: 'Tumult, Chaos (no plural)', back: 'pandemonium' },
-                    { id: 'genuine', front: 'echt, wirklich; aufrichtig', back: 'genuine' },
-                    { id: 'clue', front: '(Lösungs-)Hinweis. (I don’t have a [...].)', back: 'clue' },
-                    { id: 'face_to_face', front: 'von Angesicht zu Angesicht', back: 'face to face' },
-                    { id: 'homeland', front: 'Heimat(land)', back: 'homeland' },
-                    { id: 'option', front: 'Wahl(möglichkeit), Option', back: 'option' },
-                    { id: 'leg_up', front: 'jm. einen Vorsprung verschaffen', back: '(to) give sb. a leg up' },
-                    { id: 'comprehension', front: 'Verständnis (English [...])', back: 'comprehension' },
-                    { id: 'equate', front: 'etwas gleichsetzen (mit)', back: '(to) equate sth. (with)' },
-                    { id: 'intelligence', front: 'Intelligenz (Betonung auf der 2. Silbe)', back: 'intelligence' }
+                    { id: 'tug', front: 'ziehen (z.B. am Ärmel)', back: '(to) tug' },
+                    { id: 'tactic', front: 'Taktik', back: 'tactic' },
+                    { id: 'muscle', front: 'Muskel', back: 'muscle' },
+                    { id: 'chest', front: 'Brust, Brustkorb', back: 'chest' },
+                    { id: 'hose', front: 'Schlauch (a garden [...])', back: 'hose' },
+                    { id: 'speckle', front: 'Tupfen, Sprenkel (blue-speckled)', back: 'speckle' },
+                    { id: 'shoebox', front: 'Schuhkarton', back: 'shoebox' },
+                    { id: 'rush', front: 'eilen; hetzen; (schnell) fließen', back: '(to) rush' },
+                    { id: 'bubble', front: 'Bläschen, Blase', back: 'bubble' },
+                    { id: 'lower', front: 'sinken (lassen), (sich) senken, herabsetzen', back: '(to) lower' },
+                    { id: 'lid', front: 'Deckel', back: 'lid' },
+                    { id: 'mortuary', front: 'Leichenhalle; Leichenschauhaus', back: 'mortuary' },
+                    { id: 'hiss', front: '(das/ein) Zischen, Fauchen', back: 'hiss' },
+                    { id: 'steam', front: 'Dampf', back: 'steam' },
+                    { id: 'flash_freeze', front: 'schockgefrieren (to [...] very quickly)', back: '(to) flash freeze' },
+                    { id: 'ball', front: '(sich) ballen (einen Ball formen)', back: '(to) ball' }
                 ]
             },
-            "page151": {
-                title: "Seite 151",
+            "page182": {
+                title: "Seite 182",
                 cards: [
-                    { id: 'dock', front: 'Anklagebank (to be in the [...])', back: 'dock' },
-                    { id: 'get_away', front: 'davonkommen (mit)', back: '(to) get away (with) / (to) get off (with)' },
-                    { id: 'fine', front: 'Geldstrafe (You might have to pay a [...].)', back: 'fine' },
-                    { id: 'naughty', front: 'ungezogen, frech, unartig', back: 'naughty' },
-                    { id: 'versed_in', front: 'versiert in etwas sein, gute Kenntnisse haben', back: '(to) be versed in sth.' },
-                    { id: 'pick_up', front: 'sich etwas aneignen (Sprache/Kenntnisse)', back: '(to) pick sth. up' },
-                    { id: 'upside', front: 'auf den Kopf, vor den Kopf (AE, infml)', back: 'upside (the head)' },
-                    { id: 'idiot', front: 'Idiot/in (Betonung auf der 1. Silbe)', back: 'idiot' },
-                    { id: 'passionate', front: 'leidenschaftlich', back: 'passionate' },
-                    { id: 'oppress', front: 'unterdrücken', back: '(to) oppress' },
-                    { id: 'boundary', front: 'Grenze (Music can cross cultural [...])', back: 'boundary' },
-                    { id: 'handle', front: 'mit etwas umgehen, etwas handhaben', back: '(to) handle sth.' },
-                    { id: 'navigate', front: 'navigieren, den Weg finden', back: '(to) navigate' },
-                    { id: 'shopkeeper', front: 'Ladenbesitzer/in', back: 'shopkeeper' },
-                    { id: 'fluent', front: 'fließend (Sprache)', back: 'fluent' },
-                    { id: 'merely', front: 'nur, bloß ▶▶', back: 'only' },
-                    { id: 'brief', front: 'kurz, knapp ▶▶', back: 'short' },
-                    { id: 'confusion', front: 'Verwirrung; Durcheinander', back: 'confusion' }
+                    { id: 'back_down', front: 'einen Rückzieher machen (infml)', back: '(to) back down' },
+                    { id: 'guilt_into', front: 'jn. moralisch zu etwas verpflichten', back: '(to) guilt sb. into sth.' },
+                    { id: 'trail', front: 'Spur; Weg, Pfad; Route', back: 'trail' },
+                    { id: 'mission', front: 'Mission; Auftrag (Betonung auf der 1. Silbe)', back: 'mission' },
+                    { id: 'military', front: 'das Militär', back: 'the military' },
+                    { id: 'pete_sake', front: 'Um Himmels Willen! (Oh, for [...])', back: 'For Pete’s sake!' },
+                    { id: 'battlefield', front: 'Schlachtfeld', back: 'battlefield' },
+                    { id: 'analyst', front: 'Experte/Expertin; Analyst/in', back: 'analyst' },
+                    { id: 'point', front: 'Sinn, Zweck. (What’s the [...] of that?)', back: 'point' },
+                    { id: 'command', front: 'Anordnung; Befehl', back: 'command' },
+                    { id: 'genetic', front: 'genetisch', back: 'genetic' },
+                    { id: 'splice', front: 'verkleben; verspleißen (genetic [...])', back: '(to) splice' },
+                    { id: 'crop', front: 'Feldfrucht, Anbaupflanze; Ernte', back: 'crop' },
+                    { id: 'undress', front: 'sich ausziehen', back: '(to) undress' },
+                    { id: 'chamber', front: 'Kammer (underground [...])', back: 'chamber' },
+                    { id: 'the_inside', front: 'das Innere, die Innenseite', back: 'the inside' }
                 ]
             },
-            "page152": {
-                title: "Seite 152",
+            "page183": {
+                title: "Seite 183",
                 cards: [
-                    { id: 'serve', front: 'servieren; Kundschaft bedienen; dienen. (This could [...] as an example.)', back: '(to) serve' },
-                    { id: 'mug', front: 'jn. überfallen (Straßenraub)', back: '(to) mug sb.' },
-                    { id: 'dude', front: 'Mann, Alter (Anrede, infml)', back: 'dude' },
-                    { id: 'incident', front: 'Vorfall, Zwischenfall', back: 'incident' },
-                    { id: 'define', front: 'definieren', back: '(to) define' },
-                    { id: 'chameleon', front: 'Chamäleon (Echsenart)', back: 'chameleon' },
-                    { id: 'perception', front: 'Wahrnehmung', back: 'perception' },
-                    { id: 'barrier', front: 'Barriere', back: 'barrier' },
-                    { id: 'architect', front: 'Architekt/in', back: 'architect' },
-                    { id: 'effort', front: 'Anstrengung, Mühe. (to make an [...])', back: 'effort' },
-                    { id: 'physical', front: 'körperlich, physisch', back: 'physical' },
-                    { id: 'mood', front: 'Stimmung, Laune', back: 'mood' },
-                    { id: 'atmosphere', front: 'Atmosphäre (Betonung auf der 1. Silbe)', back: 'atmosphere' },
-                    { id: 'theme', front: 'Thema', back: 'theme' },
-                    { id: 'misunderstanding', front: 'Missverständnis', back: 'misunderstanding' },
-                    { id: 'clarify', front: 'klären, klarstellen ▶▶', back: '(to) clarify' },
-                    { id: 'rephrase', front: 'umformulieren, anders ausdrücken', back: '(to) rephrase' },
-                    { id: 'in_other_words', front: 'mit anderen Worten', back: 'in other words' },
-                    { id: 'put_sth', front: 'etwas (auf eine bestimmte Art) ausdrücken, formulieren', back: '(to) put sth.' }
+                    { id: 'stick', front: 'kleben; stecken; (haften) bleiben (It will always [...] in my mind.)', back: '(to) stick' },
+                    { id: 'intravenous', front: 'intravenös (IV)', back: 'intravenous (= IV)' },
+                    { id: 'needle', front: 'Nadel; Kanüle', back: 'needle' },
+                    { id: 'spine', front: 'Wirbelsäule, Rückgrat', back: 'spine' },
+                    { id: 'pinky', front: 'kleiner Finger (AE)', back: 'pinky (finger)' },
+                    { id: 'wrap', front: 'etwas in etwas (ein)wickeln', back: '(to) wrap sth. in/with sth.' },
+                    { id: 'slam', front: '(hin)knallen, zuschlagen (Tür)', back: '(to) slam' },
+                    { id: 'puff', front: 'Stoß, (Luft-)Zug, Wolke', back: 'puff' },
+                    { id: 'jerk', front: 'rucken, mit einem Ruck ziehen/stoßen', back: '(to) jerk' },
+                    { id: 'translucent', front: 'durchscheinend', back: 'translucent' },
+                    { id: 'solid', front: 'fest, solide, stabil', back: 'solid' },
+                    { id: 'go_under', front: 'untergehen (unter Wasser); zu Grunde gehen', back: '(to) go under' },
+                    { id: 'watery', front: 'wässrig, Wasser-', back: 'watery' },
+                    { id: 'drift', front: 'treiben, wehen; sich bewegen, driften', back: '(to) drift' }
+                ]
+            },
+            "page184": {
+                title: "Seite 184",
+                cards: [
+                    { id: 'splutter', front: 'schnauben, prusten', back: '(to) splutter' },
+                    { id: 'remove', front: 'entfernen, beseitigen; ausziehen (Kleidung)', back: '(to) remove' },
+                    { id: 'engineering', front: 'Ingenieurwesen, Maschinenbau', back: 'engineering' },
+                    { id: 'ambitious', front: 'ehrgeizig', back: 'ambitious' },
+                    { id: 'circulate', front: 'zirkulieren, sich (im Kreis) bewegen', back: '(to) circulate' },
+                    { id: 'percentage', front: 'Anteil, Prozentsatz', back: 'percentage' },
+                    { id: 'patch', front: 'Flicken; Fleck, Stelle; Stück (Stoff)', back: 'patch' },
+                    { id: 'garbage', front: 'Müll, Abfall (AE) ▶▶', back: 'rubbish' },
+                    { id: 'wave', front: 'Welle', back: 'wave' },
+                    { id: 'research', front: 'erforschen, untersuchen, recherchieren', back: '(to) research' },
+                    { id: 'invest', front: 'investieren (in)', back: '(to) invest (in)' },
+                    { id: 'trial', front: 'Test, Studie; Probe (Gerichtsverfahren)', back: 'trial' },
+                    { id: 'place', front: 'stellen, legen, setzen, platzieren ▶▶', back: '(to) put (sth. somewhere)' },
+                    { id: 'strategic', front: 'strategisch', back: 'strategic' },
+                    { id: 'solar_power', front: 'Sonnenenergie', back: 'solar power' },
+                    { id: 'conveyor_belt', front: 'Transportband, Förderband; Fließband', back: 'conveyor (belt)' }
+                ]
+            },
+            "page185": {
+                title: "Seite 185",
+                cards: [
+                    { id: 'technological', front: 'technologisch', back: 'technological' },
+                    { id: 'order', front: 'Reihenfolge (in the wrong [...])', back: 'order' },
+                    { id: 'and_so_on', front: 'und so weiter ▶▶', back: 'etc.' },
+                    { id: 'contribute', front: 'beitragen, beisteuern (zu); spenden (für)', back: '(to) contribute (to/towards)' },
+                    { id: 'systematic', front: 'systematisch', back: 'systematic' },
+                    { id: 'expand_on', front: 'etwas weiter ausführen', back: '(to) expand on sth.' },
+                    { id: 'so_far', front: 'bis jetzt, bis hierher ▶▶', back: 'up to now' },
+                    { id: 'group', front: 'gruppieren', back: '(to) group' }
                 ]
             }
         };
@@ -531,7 +540,7 @@
         const MAX_ATTEMPTS = 3;
         let currentCardIndex = 0;
         let answered = false;
-        let failedAttempts = 0;
+        let failedAttempts = 0; 
         let flashcards = []; 
         let totalCards = 0;
 
@@ -545,7 +554,7 @@
         const answerInputElement = document.getElementById('answerInput');
         const checkButton = document.getElementById('checkButton');
         const nextButton = document.getElementById('nextButton');
-        const attemptCountElement = document.getElementById('attemptCount');
+        const attemptCountElement = document.getElementById('attemptCount'); 
         const feedbackElement = document.getElementById('feedback');
         const completionMessage = document.getElementById('completionMessage');
         const progressTextElement = document.getElementById('progressText');
@@ -559,6 +568,7 @@
         function renderMenu() {
             menuGrid.innerHTML = ''; 
             
+            // Sortiert die Keys (page174, page175, ...) numerisch
             const sortedKeys = Object.keys(allCardSets).sort((a, b) => {
                 return parseInt(a.replace('page', '')) - parseInt(b.replace('page', ''));
             });
@@ -618,7 +628,7 @@
             answerInputElement.className = 'answer-input';
             feedbackElement.textContent = '';
             feedbackElement.className = 'feedback';
-            failedAttempts = 0; // Zähler zurücksetzen
+            failedAttempts = 0; 
             
             // Kartentexte und UI-Elemente setzen
             cardFrontElement.textContent = card.front;
@@ -632,6 +642,9 @@
 
             updateProgress();
             updateAttemptCount();
+            
+            // Cursor auf default setzen, da manuelle Klicks deaktiviert sind
+            flashcardElement.style.cursor = 'default'; 
         }
 
         function updateProgress() {
@@ -640,25 +653,30 @@
         
         function updateAttemptCount() {
             const remaining = MAX_ATTEMPTS - failedAttempts;
-            const color = remaining === 1 ? varColorError : varColorText;
-            
+            const varColorError = getComputedStyle(document.documentElement).getPropertyValue('--color-error');
+            const varColorText = getComputedStyle(document.documentElement).getPropertyValue('--color-text');
+
             if (remaining > 0) {
                  attemptCountElement.textContent = `Versuche verbleibend: ${remaining}`;
-                 attemptCountElement.style.color = color;
+                 attemptCountElement.style.color = remaining === 1 ? varColorError : varColorText;
             } else {
                  attemptCountElement.textContent = '';
             }
         }
 
         function flipCard() {
-            flashcardElement.classList.toggle('flipped');
+            // Die Karte nur flippen, wenn die Antwort feststeht (nach checkAnswer)
+            if (answered) {
+                flashcardElement.classList.toggle('flipped');
+            }
         }
 
         /** 
-         * Entfernt unnötige Zeichen, Klammern etc. Behält aber Groß-/Kleinschreibung!
+         * Entfernt unnötige Zeichen, Klammern etc., behält aber Groß-/Kleinschreibung bei!
+         * (Wurde korrigiert, indem .toLowerCase() entfernt wurde)
          */
         function normalizeAnswer(text) {
-            // Nur trimmen und Formatierungen entfernen, Groß-/Kleinschreibung beibehalten
+            // Ignoriert '(to)', Klammern und Endungen wie 'sth.', behält aber Casing bei
             return text.replace(/\(to\)/g, '') 
                        .replace(/[\(\)]/g, '')
                        .replace(/sth\./g, '')
@@ -672,21 +690,23 @@
             const card = flashcards[currentCardIndex];
             const rawUserAnswer = answerInputElement.value.trim();
             
+            // Die Prüfung ist jetzt case-sensitive
             const userAnswer = normalizeAnswer(rawUserAnswer);
-            // Korrekte Antworten können durch '/' getrennt sein (z.B. "word / word2")
-            const correctAnswers = card.back.split('/').map(ans => normalizeAnswer(ans));
+            // Korrekte Antworten werden ebenfalls nur bereinigt (ohne .toLowerCase())
+            const correctAnswers = card.back.split('/').map(ans => normalizeAnswer(ans)); 
             
             const isCorrect = correctAnswers.some(ans => userAnswer === ans);
             
             if (isCorrect) {
-                // FALL 1: KORREKT (inkl. Groß-/Kleinschreibung)
+                // FALL 1: KORREKT
                 answered = true;
                 checkButton.disabled = true;
                 answerInputElement.classList.add('correct');
                 feedbackElement.textContent = '✓ Richtig! Gut gemacht!';
                 feedbackElement.classList.add('correct');
                 
-                // Lösung anzeigen und weiter
+                // Karte flippen & weiter
+                flashcardElement.style.cursor = 'pointer'; 
                 setTimeout(flipCard, 500);
                 nextButton.style.display = 'inline-block';
                 answerInputElement.disabled = true;
@@ -699,13 +719,14 @@
                 answerInputElement.classList.add('incorrect');
                 
                 if (failedAttempts >= MAX_ATTEMPTS) {
-                    // FALL 2a: Falsch und MAX_ATTEMPTS erreicht. Lösung anzeigen.
+                    // FALL 2a: Falsch und MAX_ATTEMPTS erreicht (Aufgeben)
                     answered = true;
                     checkButton.disabled = true;
                     feedbackElement.textContent = `✗ Falsch. Maximale Versuche erreicht. Die korrekte Antwort war: "${card.back}"`;
                     feedbackElement.classList.add('incorrect');
                     
-                    // Lösung anzeigen und weiter
+                    // Karte flippen & weiter
+                    flashcardElement.style.cursor = 'pointer';
                     setTimeout(flipCard, 500);
                     nextButton.style.display = 'inline-block';
                     answerInputElement.disabled = true;
@@ -713,8 +734,11 @@
 
                 } else {
                     // FALL 2b: Falsch, aber weitere Versuche erlaubt
-                    answerInputElement.classList.remove('correct', 'incorrect');
-                    answerInputElement.value = '';
+                    setTimeout(() => {
+                        answerInputElement.classList.remove('incorrect');
+                        answerInputElement.value = ''; 
+                    }, 500);
+                    
                     feedbackElement.textContent = `Falsch. Versuch ${failedAttempts} von ${MAX_ATTEMPTS} fehlgeschlagen. Achte auf die Groß-/Kleinschreibung!`;
                     feedbackElement.classList.remove('correct');
                     feedbackElement.classList.add('incorrect');
@@ -757,7 +781,19 @@
         
         function startGame() {
             showCard();
-            flashcardElement.onclick = null; 
+            // Stellt sicher, dass die Klick-Logik nur bei "answered = true" funktioniert
+            flashcardElement.removeEventListener('click', flipCard);
+            flashcardElement.addEventListener('click', flipCard);
+            
+            // Fängt Enter-Taste ab
+            answerInputElement.removeEventListener('keypress', handleKeypress);
+            answerInputElement.addEventListener('keypress', handleKeypress);
+        }
+        
+        function handleKeypress(e) {
+             if (e.key === 'Enter' && !checkButton.disabled && !answerInputElement.disabled) {
+                checkAnswer();
+            }
         }
 
 
@@ -766,9 +802,6 @@
         // #######################################################
         
         window.onload = () => {
-             // CSS-Variablen für die Verwendung in JS (z.B. für attemptCount Farbe)
-             window.varColorError = getComputedStyle(document.documentElement).getPropertyValue('--color-error');
-             window.varColorText = getComputedStyle(document.documentElement).getPropertyValue('--color-text');
              renderMenu();
         }
     </script>
