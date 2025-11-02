@@ -613,27 +613,23 @@
         // #######################################################
         // 4. SPIEL FUNKTIONEN (Kern-Logik mit Versuchszähler)
         // #######################################################
-
-        function showCard() {
-            if (currentCardIndex >= totalCards) {
-                showCompletion();
-                return;
-            }
-
+        
+        /** Lädt den Inhalt der aktuellen Karte und setzt die UI zurück */
+        function loadCardContent() {
             const card = flashcards[currentCardIndex];
             
-            // UI zurücksetzen
-            flashcardElement.classList.remove('flipped');
+            // UI reset
             answerInputElement.value = '';
             answerInputElement.className = 'answer-input';
             feedbackElement.textContent = '';
             feedbackElement.className = 'feedback';
             failedAttempts = 0; 
             
-            // Kartentexte und UI-Elemente setzen
+            // Set content
             cardFrontElement.textContent = card.front;
             cardBackElement.textContent = card.back;
             
+            // Enable controls
             checkButton.style.display = 'inline-block';
             nextButton.style.display = 'none';
             checkButton.disabled = false;
@@ -642,9 +638,26 @@
 
             updateProgress();
             updateAttemptCount();
-            
-            // Cursor auf default setzen, da manuelle Klicks deaktiviert sind
             flashcardElement.style.cursor = 'default'; 
+        }
+
+        function showCard() {
+            if (currentCardIndex >= totalCards) {
+                showCompletion();
+                return;
+            }
+
+            // NEUE LOGIK FÜR FLICKER-FIX
+            const isFlipped = flashcardElement.classList.contains('flipped');
+            flashcardElement.classList.remove('flipped'); // Startet die 0.6s Animation
+
+            if (isFlipped) {
+                // Wenn die Karte umgedreht war, warten wir 600ms, bis die Rotation beendet ist, bevor wir den neuen Inhalt laden
+                setTimeout(loadCardContent, 600);
+            } else {
+                // Wenn es die erste Karte ist oder die Karte nicht umgedreht war, sofort laden
+                loadCardContent();
+            }
         }
 
         function updateProgress() {
@@ -673,7 +686,6 @@
 
         /** 
          * Entfernt unnötige Zeichen, Klammern etc., behält aber Groß-/Kleinschreibung bei!
-         * (Wurde korrigiert, indem .toLowerCase() entfernt wurde)
          */
         function normalizeAnswer(text) {
             // Ignoriert '(to)', Klammern und Endungen wie 'sth.', behält aber Casing bei
